@@ -45,7 +45,6 @@ export class App extends React.Component {
   }
 
   componentDidMount() {
-    console.log(FRAME_RATE);
     let song = document.getElementById('now-playing-song');
     song.addEventListener('loadedmetadata', (e) => {
       this.setState({
@@ -69,8 +68,6 @@ export class App extends React.Component {
 
     window.onkeydown = (e) => {
       let key = e.keyCode ? e.keyCode : e.which;
-      console.log(key);
-
       if (KEYMAP[key] && this.state.activeKeys.indexOf(KEYMAP[key]) === -1) {
         let newActiveKeys = this.state.activeKeys;
         newActiveKeys.push(KEYMAP[key]);

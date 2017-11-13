@@ -20338,9 +20338,6 @@ var Track = exports.Track = function (_React$Component) {
   }, {
     key: 'shouldComponentUpdate',
     value: function shouldComponentUpdate(nextProps, nextState) {
-      if (nextProps.currentFrame === this.props.currentFrame) {
-        return false;
-      }
       return true;
     }
   }, {
@@ -20362,7 +20359,6 @@ var Track = exports.Track = function (_React$Component) {
             var locationBounds = hitNoteLocation.getBoundingClientRect();
             var noteContainerBounds = collisionNote.getBoundingClientRect();
             var noteBounds = collisionNote.childNodes[0].getBoundingClientRect();
-
             if (noteContainerBounds.top < locationBounds.top && noteContainerBounds.bottom > locationBounds.bottom || noteContainerBounds.top > locationBounds.top && noteContainerBounds.bottom > locationBounds.bottom && noteContainerBounds.top < locationBounds.bottom || noteContainerBounds.top < locationBounds.top && noteContainerBounds.bottom < locationBounds.bottom && noteContainerBounds.bottom > locationBounds.top) {
               collisionNote.classList.add('checked-note');
               if (noteBounds.top > locationBounds.top && noteBounds.bottom < locationBounds.bottom) {
@@ -20549,7 +20545,6 @@ var App = exports.App = function (_React$Component) {
     value: function componentDidMount() {
       var _this2 = this;
 
-      console.log(FRAME_RATE);
       var song = document.getElementById('now-playing-song');
       song.addEventListener('loadedmetadata', function (e) {
         _this2.setState({
@@ -20573,8 +20568,6 @@ var App = exports.App = function (_React$Component) {
 
       window.onkeydown = function (e) {
         var key = e.keyCode ? e.keyCode : e.which;
-        console.log(key);
-
         if (KEYMAP[key] && _this2.state.activeKeys.indexOf(KEYMAP[key]) === -1) {
           var newActiveKeys = _this2.state.activeKeys;
           newActiveKeys.push(KEYMAP[key]);

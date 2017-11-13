@@ -103,6 +103,18 @@ body {
   animation: note-fall 5s linear forwards;
   animation-iteration-count: 1;
 }
+/*
+.note-container.missed-note {
+  background-color: red;
+}
+
+.note-container.hit-note-perfect {
+  background-color: green;
+}
+
+.note-container.hit-note {
+  background-color: lightgreen;
+}*/
 
 .note {
   width: 30px;

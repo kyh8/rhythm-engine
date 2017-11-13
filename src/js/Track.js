@@ -10,9 +10,6 @@ export class Track extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    if (nextProps.currentFrame === this.props.currentFrame) {
-      return false;
-    }
     return true;
   }
 
@@ -33,7 +30,6 @@ export class Track extends React.Component {
           const locationBounds = hitNoteLocation.getBoundingClientRect();
           const noteContainerBounds = collisionNote.getBoundingClientRect();
           const noteBounds = collisionNote.childNodes[0].getBoundingClientRect();
-
           if (
             noteContainerBounds.top < locationBounds.top && noteContainerBounds.bottom > locationBounds.bottom
             || noteContainerBounds.top > locationBounds.top && noteContainerBounds.bottom > locationBounds.bottom && noteContainerBounds.top < locationBounds.bottom
