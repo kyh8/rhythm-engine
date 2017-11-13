@@ -20509,7 +20509,11 @@ var KEYMAP = {
   74: 1,
   75: 2,
   76: 3,
-  186: 4
+  186: 4,
+  65: 1,
+  83: 2,
+  68: 3,
+  70: 4
 };
 
 var App = exports.App = function (_React$Component) {
@@ -20569,6 +20573,8 @@ var App = exports.App = function (_React$Component) {
 
       window.onkeydown = function (e) {
         var key = e.keyCode ? e.keyCode : e.which;
+        console.log(key);
+
         if (KEYMAP[key] && _this2.state.activeKeys.indexOf(KEYMAP[key]) === -1) {
           var newActiveKeys = _this2.state.activeKeys;
           newActiveKeys.push(KEYMAP[key]);

@@ -15,6 +15,10 @@ const KEYMAP = {
   75: 2,
   76: 3,
   186: 4,
+  65: 1,
+  83: 2,
+  68: 3,
+  70: 4,
 };
 
 export class App extends React.Component {
@@ -65,6 +69,8 @@ export class App extends React.Component {
 
     window.onkeydown = (e) => {
       let key = e.keyCode ? e.keyCode : e.which;
+      console.log(key);
+
       if (KEYMAP[key] && this.state.activeKeys.indexOf(KEYMAP[key]) === -1) {
         let newActiveKeys = this.state.activeKeys;
         newActiveKeys.push(KEYMAP[key]);
