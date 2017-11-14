@@ -56,7 +56,7 @@ export class App extends React.Component {
       }, () => {
         this.mapFrames();
         song.play();
-        song.volume = 0.1;
+        song.volume = 0;
 
         window.requestAnimationFrame(this.gameLoop.bind(this));
       });
@@ -86,7 +86,6 @@ export class App extends React.Component {
   }
 
   gameLoop(timestamp) {
-    console.log('timestamp', timestamp);
     let progress = timestamp - this.state.lastRender;
 
     this.updateFrame(progress);
@@ -100,7 +99,6 @@ export class App extends React.Component {
     if (this.state.songElement) {
       const newTime = Math.floor(this.state.songElement.currentTime);
       const newFrame = Math.floor(this.state.songElement.currentTime * MS_PER_SEC / FRAME_RATE);
-      console.log('current vs new', this.state.currentFrame, newFrame);
       this.setState({
         currentSongTime: newTime,
         currentFrame: newFrame,

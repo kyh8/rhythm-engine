@@ -51,8 +51,8 @@ body {
 .game-editor {
   width: 500px;
   height: 500px;
-  box-shadow: 0 0 2px black;
-  border-radius: 10px;
+  box-shadow: 0 0 1px black;
+  border-radius: 4px;
   margin-top: 10px;
   display: flex;
   align-items: center;
@@ -125,6 +125,10 @@ body {
   margin: 30px 0;
 }
 
+.note-container.checked-note .note {
+  background-color: rgba(255,255,255,0.3);
+}
+
 @keyframes note-fall {
   0% {
     top: -90px
@@ -142,6 +146,49 @@ body {
   height: 36px;
   border-radius: 50%;
   border: 2px solid white;
+}
+
+.hit-note-location-pulse {
+  width: 60px;
+  height: 60px;
+  left: -6px;
+  top: -6px;
+  border-radius: 50%;
+  border: 6px solid rgba(255, 255, 255, 0.6);
+  position: absolute;
+  opacity: 1;
+  animation: pulse 0.4s linear;
+}
+
+.hit-note-location-pulse.perfect {
+  border-color: green;
+}
+
+.hit-note-location-pulse.good {
+  border-color: yellow;
+}
+
+.hit-note-location-pulse.miss {
+  border-color: red;
+}
+
+@keyframes pulse {
+  0% {
+    opacity: 0;
+    width: 36px;
+    height: 36px;
+  }
+  1% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    width: 60px;
+    height: 60px;
+    left: -18px;
+    top: -18px;
+  }
 }
 
 .track-1 {

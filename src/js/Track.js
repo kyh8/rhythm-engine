@@ -10,12 +10,15 @@ export class Track extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return true;
+    return nextProps.isActive !== this.props.isActive || nextProps.currentFrame !== this.props.currentFrame;
   }
 
   componentWillUpdate(nextProps, nextState) {
     if (nextProps.isActive === true && this.props.isActive === false) {
+      console.log('update');
       let noteTrack = document.getElementById('note-track-' + this.props.trackID);
+
+      let pulseColor = 'none';
       let notes = Array.from(noteTrack.childNodes);
       if (notes) {
         notes = notes.filter((note) => {
@@ -39,6 +42,7 @@ export class Track extends React.Component {
             if (noteBounds.top > locationBounds.top && noteBounds.bottom < locationBounds.bottom) {
               console.log('hit note perfect', this.props.trackID);
               this.props.updateScore('perfect');
+              pulseColor = 'perfect';
               collisionNote.classList.add('hit-note-perfect');
             } else if (
               noteBounds.top < locationBounds.top && noteBounds.bottom < locationBounds.bottom && noteBounds.bottom > locationBounds.top
@@ -46,15 +50,28 @@ export class Track extends React.Component {
             ) {
               console.log('hit note', this.props.trackID);
               this.props.updateScore('good');
+              pulseColor = 'good';
               collisionNote.classList.add('hit-note');
             } else {
               console.log('missed note', this.props.trackID);
               this.props.updateScore('miss');
+              pulseColor = 'miss';
               collisionNote.classList.add('missed-note');
             }
           }
         }
       }
+
+      let hitNotePulse = document.getElementById(
+        'hit-note-location-pulse-' + this.props.trackID
+      );
+
+      let pulse = document.createElement('div');
+      pulse.classList.add('hit-note-location-pulse', pulseColor);
+      hitNotePulse.appendChild(pulse);
+      pulse.addEventListener('animationend', () => {
+        hitNotePulse.removeChild(pulse);
+      });
     }
   }
 
@@ -86,7 +103,9 @@ export class Track extends React.Component {
       <div id={'note-track-' + this.props.trackID} className={'note-track track-' + this.props.trackID}>
         <div id={'hit-note-location-' + this.props.trackID} className={
           this.props.isActive ? 'active-key hit-note-location' : 'hit-note-location'
-        }/>
+        }>
+          <div id={'hit-note-location-pulse-' + this.props.trackID}/>
+        </div>
       </div>
     );
   }

@@ -20338,57 +20338,76 @@ var Track = exports.Track = function (_React$Component) {
   }, {
     key: 'shouldComponentUpdate',
     value: function shouldComponentUpdate(nextProps, nextState) {
-      return true;
+      return nextProps.isActive !== this.props.isActive || nextProps.currentFrame !== this.props.currentFrame;
     }
   }, {
     key: 'componentWillUpdate',
     value: function componentWillUpdate(nextProps, nextState) {
-      if (nextProps.isActive === true && this.props.isActive === false) {
-        var noteTrack = document.getElementById('note-track-' + this.props.trackID);
-        var notes = Array.from(noteTrack.childNodes);
-        if (notes) {
-          notes = notes.filter(function (note) {
-            return note.classList.contains('note-container') && !note.classList.contains('checked-note');
-          });
-          // note to check collision on should be first one added to this list
-          // in other words, the note closest to the bottom
-          if (notes.length > 0) {
-            var collisionNote = notes[0];
+      var _this2 = this;
 
-            var hitNoteLocation = document.getElementById('hit-note-location-' + this.props.trackID);
-            var locationBounds = hitNoteLocation.getBoundingClientRect();
-            var noteContainerBounds = collisionNote.getBoundingClientRect();
-            var noteBounds = collisionNote.childNodes[0].getBoundingClientRect();
-            if (noteContainerBounds.top < locationBounds.top && noteContainerBounds.bottom > locationBounds.bottom || noteContainerBounds.top > locationBounds.top && noteContainerBounds.bottom > locationBounds.bottom && noteContainerBounds.top < locationBounds.bottom || noteContainerBounds.top < locationBounds.top && noteContainerBounds.bottom < locationBounds.bottom && noteContainerBounds.bottom > locationBounds.top) {
-              collisionNote.classList.add('checked-note');
-              if (noteBounds.top > locationBounds.top && noteBounds.bottom < locationBounds.bottom) {
-                console.log('hit note perfect', this.props.trackID);
-                this.props.updateScore('perfect');
-                collisionNote.classList.add('hit-note-perfect');
-              } else if (noteBounds.top < locationBounds.top && noteBounds.bottom < locationBounds.bottom && noteBounds.bottom > locationBounds.top || noteBounds.top > locationBounds.top && noteBounds.bottom > locationBounds.bottom && noteBounds.top < locationBounds.bottom) {
-                console.log('hit note', this.props.trackID);
-                this.props.updateScore('good');
-                collisionNote.classList.add('hit-note');
-              } else {
-                console.log('missed note', this.props.trackID);
-                this.props.updateScore('miss');
-                collisionNote.classList.add('missed-note');
+      if (nextProps.isActive === true && this.props.isActive === false) {
+        (function () {
+          console.log('update');
+          var noteTrack = document.getElementById('note-track-' + _this2.props.trackID);
+
+          var pulseColor = 'none';
+          var notes = Array.from(noteTrack.childNodes);
+          if (notes) {
+            notes = notes.filter(function (note) {
+              return note.classList.contains('note-container') && !note.classList.contains('checked-note');
+            });
+            // note to check collision on should be first one added to this list
+            // in other words, the note closest to the bottom
+            if (notes.length > 0) {
+              var collisionNote = notes[0];
+
+              var hitNoteLocation = document.getElementById('hit-note-location-' + _this2.props.trackID);
+              var locationBounds = hitNoteLocation.getBoundingClientRect();
+              var noteContainerBounds = collisionNote.getBoundingClientRect();
+              var noteBounds = collisionNote.childNodes[0].getBoundingClientRect();
+              if (noteContainerBounds.top < locationBounds.top && noteContainerBounds.bottom > locationBounds.bottom || noteContainerBounds.top > locationBounds.top && noteContainerBounds.bottom > locationBounds.bottom && noteContainerBounds.top < locationBounds.bottom || noteContainerBounds.top < locationBounds.top && noteContainerBounds.bottom < locationBounds.bottom && noteContainerBounds.bottom > locationBounds.top) {
+                collisionNote.classList.add('checked-note');
+                if (noteBounds.top > locationBounds.top && noteBounds.bottom < locationBounds.bottom) {
+                  console.log('hit note perfect', _this2.props.trackID);
+                  _this2.props.updateScore('perfect');
+                  pulseColor = 'perfect';
+                  collisionNote.classList.add('hit-note-perfect');
+                } else if (noteBounds.top < locationBounds.top && noteBounds.bottom < locationBounds.bottom && noteBounds.bottom > locationBounds.top || noteBounds.top > locationBounds.top && noteBounds.bottom > locationBounds.bottom && noteBounds.top < locationBounds.bottom) {
+                  console.log('hit note', _this2.props.trackID);
+                  _this2.props.updateScore('good');
+                  pulseColor = 'good';
+                  collisionNote.classList.add('hit-note');
+                } else {
+                  console.log('missed note', _this2.props.trackID);
+                  _this2.props.updateScore('miss');
+                  pulseColor = 'miss';
+                  collisionNote.classList.add('missed-note');
+                }
               }
             }
           }
-        }
+
+          var hitNotePulse = document.getElementById('hit-note-location-pulse-' + _this2.props.trackID);
+
+          var pulse = document.createElement('div');
+          pulse.classList.add('hit-note-location-pulse', pulseColor);
+          hitNotePulse.appendChild(pulse);
+          pulse.addEventListener('animationend', function () {
+            hitNotePulse.removeChild(pulse);
+          });
+        })();
       }
     }
   }, {
     key: 'spawnNotes',
     value: function spawnNotes() {
-      var _this2 = this;
+      var _this3 = this;
 
       var currentFrame = this.props.currentFrame;
       var noteSpawnTimes = this.props.spawnTimes;
       if (noteSpawnTimes && noteSpawnTimes.indexOf(currentFrame) !== -1) {
         (function () {
-          var noteTrack = document.getElementById('note-track-' + _this2.props.trackID);
+          var noteTrack = document.getElementById('note-track-' + _this3.props.trackID);
           var noteContainer = document.createElement('div');
           noteContainer.classList.add('note-container');
           var note = document.createElement('div');
@@ -20397,7 +20416,7 @@ var Track = exports.Track = function (_React$Component) {
           noteContainer.addEventListener('animationend', function (e) {
             // console.log('note animation end', this.props.trackID);
             if (!noteContainer.classList.contains('checked-note')) {
-              _this2.props.updateScore('miss');
+              _this3.props.updateScore('miss');
             }
             noteTrack.removeChild(noteContainer);
           });
@@ -20411,7 +20430,11 @@ var Track = exports.Track = function (_React$Component) {
       return React.createElement(
         'div',
         { id: 'note-track-' + this.props.trackID, className: 'note-track track-' + this.props.trackID },
-        React.createElement('div', { id: 'hit-note-location-' + this.props.trackID, className: this.props.isActive ? 'active-key hit-note-location' : 'hit-note-location' })
+        React.createElement(
+          'div',
+          { id: 'hit-note-location-' + this.props.trackID, className: this.props.isActive ? 'active-key hit-note-location' : 'hit-note-location' },
+          React.createElement('div', { id: 'hit-note-location-pulse-' + this.props.trackID })
+        )
       );
     }
   }]);
@@ -20556,7 +20579,7 @@ var App = exports.App = function (_React$Component) {
         }, function () {
           _this2.mapFrames();
           song.play();
-          song.volume = 0.1;
+          song.volume = 0;
 
           window.requestAnimationFrame(_this2.gameLoop.bind(_this2));
         });
@@ -20587,7 +20610,6 @@ var App = exports.App = function (_React$Component) {
   }, {
     key: 'gameLoop',
     value: function gameLoop(timestamp) {
-      console.log('timestamp', timestamp);
       var progress = timestamp - this.state.lastRender;
 
       this.updateFrame(progress);
@@ -20602,7 +20624,6 @@ var App = exports.App = function (_React$Component) {
       if (this.state.songElement) {
         var newTime = Math.floor(this.state.songElement.currentTime);
         var newFrame = Math.floor(this.state.songElement.currentTime * MS_PER_SEC / FRAME_RATE);
-        console.log('current vs new', this.state.currentFrame, newFrame);
         this.setState({
           currentSongTime: newTime,
           currentFrame: newFrame
