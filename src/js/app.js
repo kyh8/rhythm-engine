@@ -41,6 +41,8 @@ export class App extends React.Component {
         'good': 0,
         'miss': 0,
       },
+      lastRender: 0,
+      lastRenderSongTime: 0,
     }
   }
 
@@ -55,14 +57,8 @@ export class App extends React.Component {
         this.mapFrames();
         song.play();
         song.volume = 0.1;
-        setInterval(() => {
-          const newTime = Math.floor(song.currentTime);
-          const numFrames = this.state.currentSongDuration / FRAME_RATE;
-          this.setState({
-            currentSongTime: newTime,
-            currentFrame: Math.floor(song.currentTime * MS_PER_SEC / FRAME_RATE),
-          })
-        }, FRAME_RATE);
+
+        window.requestAnimationFrame(this.gameLoop.bind(this));
       });
     });
 
@@ -86,6 +82,29 @@ export class App extends React.Component {
           activeKeys: newActiveKeys,
         });
       }
+    }
+  }
+
+  gameLoop(timestamp) {
+    console.log('timestamp', timestamp);
+    let progress = timestamp - this.state.lastRender;
+
+    this.updateFrame(progress);
+    this.setState({
+      lastRender: timestamp,
+    });
+    window.requestAnimationFrame(this.gameLoop.bind(this));
+  }
+
+  updateFrame(progress) {
+    if (this.state.songElement) {
+      const newTime = Math.floor(this.state.songElement.currentTime);
+      const newFrame = Math.floor(this.state.songElement.currentTime * MS_PER_SEC / FRAME_RATE);
+      console.log('current vs new', this.state.currentFrame, newFrame);
+      this.setState({
+        currentSongTime: newTime,
+        currentFrame: newFrame,
+      });
     }
   }
 

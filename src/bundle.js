@@ -20535,7 +20535,9 @@ var App = exports.App = function (_React$Component) {
         'perfect': 0,
         'good': 0,
         'miss': 0
-      }
+      },
+      lastRender: 0,
+      lastRenderSongTime: 0
     };
     return _this;
   }
@@ -20555,14 +20557,8 @@ var App = exports.App = function (_React$Component) {
           _this2.mapFrames();
           song.play();
           song.volume = 0.1;
-          setInterval(function () {
-            var newTime = Math.floor(song.currentTime);
-            var numFrames = _this2.state.currentSongDuration / FRAME_RATE;
-            _this2.setState({
-              currentSongTime: newTime,
-              currentFrame: Math.floor(song.currentTime * MS_PER_SEC / FRAME_RATE)
-            });
-          }, FRAME_RATE);
+
+          window.requestAnimationFrame(_this2.gameLoop.bind(_this2));
         });
       });
 
@@ -20587,6 +20583,31 @@ var App = exports.App = function (_React$Component) {
           });
         }
       };
+    }
+  }, {
+    key: 'gameLoop',
+    value: function gameLoop(timestamp) {
+      console.log('timestamp', timestamp);
+      var progress = timestamp - this.state.lastRender;
+
+      this.updateFrame(progress);
+      this.setState({
+        lastRender: timestamp
+      });
+      window.requestAnimationFrame(this.gameLoop.bind(this));
+    }
+  }, {
+    key: 'updateFrame',
+    value: function updateFrame(progress) {
+      if (this.state.songElement) {
+        var newTime = Math.floor(this.state.songElement.currentTime);
+        var newFrame = Math.floor(this.state.songElement.currentTime * MS_PER_SEC / FRAME_RATE);
+        console.log('current vs new', this.state.currentFrame, newFrame);
+        this.setState({
+          currentSongTime: newTime,
+          currentFrame: newFrame
+        });
+      }
     }
   }, {
     key: 'mapFrames',
