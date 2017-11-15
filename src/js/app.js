@@ -8,7 +8,9 @@ const SONGS = {
 
 const MS_PER_SEC = 1000;
 const FRAME_RATE = MS_PER_SEC / 60;
-const NOTE_TRAVEL_RATE = 100;
+const NOTE_TRAVEL_RATE = 4; // pixels per frame
+const NOTE_START_LOCATION = -100;
+const NOTE_END_LOCATION = 540;
 
 const KEYMAP = {
   74: 1,
@@ -108,13 +110,47 @@ export class App extends React.Component {
 
   mapFrames() {
     // map timings to drop/spawn times
+    const noteHitTimes = {
+      1: [200, 300, 400, 500, 600],
+      2: [150, 225, 325, 425, 525],
+      3: [163, 237, 382, 972, 2829],
+      4: [],
+    };
+
+    let noteMap = {}
+    // if note hits bottom at time t, must spawn at t - (distance / TRAVEL_RATE)
+    for (let track in noteHitTimes) {
+      const noteHitLocation = document.getElementById(
+        'hit-note-location-' + track
+      );
+
+      let spawnTimes = noteHitTimes[track];
+      let trackPositionings = [];
+      spawnTimes.forEach((noteSpawnTime) => {
+        let initialTime = noteSpawnTime -
+          (noteHitLocation.offsetTop - NOTE_START_LOCATION) / NOTE_TRAVEL_RATE;
+        let endTime = initialTime +
+          (NOTE_END_LOCATION - NOTE_START_LOCATION) / NOTE_TRAVEL_RATE;
+        let notePositionings = {};
+        let index = 0;
+        for (let i = initialTime; i < endTime; i++) {
+          notePositionings[i] = NOTE_START_LOCATION + index * NOTE_TRAVEL_RATE;
+          index++;
+        }
+
+        let note = {
+          startFrame: initialTime,
+          endFrame: endTime,
+          positions: notePositionings,
+        }
+        trackPositionings.push(note);
+      });
+      noteMap[track] = trackPositionings;
+    }
+    console.log(noteMap);
+
     this.setState({
-      noteMap: {
-        1: [100, 200, 300, 400, 500, 600, 700, 800, 900],
-        2: [50, 150, 250, 350, 450, 550, 650, 750, 850, 950],
-        3: [25, 125, 225, 325, 425, 525, 625, 725, 825, 925],
-        4: [],
-      }
+      noteMap: noteMap,
     });
   }
 

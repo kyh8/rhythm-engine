@@ -28,6 +28,7 @@ body {
 
 .now-playing-song-name {
   font-size: 36px;
+  height: 40px;
 }
 
 .now-playing-song-time {
@@ -98,10 +99,8 @@ body {
 
 .note-container {
   position: absolute;
-  top: -90px;
+  top: -100px;
   left: 14px;
-  animation: note-fall 5s linear forwards;
-  animation-iteration-count: 1;
 }
 /*
 .note-container.missed-note {
@@ -129,15 +128,6 @@ body {
   background-color: rgba(255,255,255,0.3);
 }
 
-@keyframes note-fall {
-  0% {
-    top: -90px
-  }
-  100% {
-    top: 510px;
-  }
-}
-
 .hit-note-location {
   position: absolute;
   bottom: 40px;
@@ -161,7 +151,7 @@ body {
 }
 
 .hit-note-location-pulse.perfect {
-  border-color: green;
+  border-color: #98FB98;
 }
 
 .hit-note-location-pulse.good {

@@ -1,12 +1,14 @@
+const Note = require('./Note');
 const React = require('react');
+
+const NOTE_HEIGHT = 30;
 
 export class Track extends React.Component {
   constructor(props) {
     super(props);
   }
 
-  componentDidUpdate() {
-    this.spawnNotes();
+  componentDidMount() {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -15,7 +17,6 @@ export class Track extends React.Component {
 
   componentWillUpdate(nextProps, nextState) {
     if (nextProps.isActive === true && this.props.isActive === false) {
-      console.log('update');
       let noteTrack = document.getElementById('note-track-' + this.props.trackID);
 
       let pulseColor = 'none';
@@ -27,33 +28,32 @@ export class Track extends React.Component {
         // note to check collision on should be first one added to this list
         // in other words, the note closest to the bottom
         if (notes.length > 0) {
-          const collisionNote = notes[0];
-
+          let collisionNote = notes[0];
           const hitNoteLocation = document.getElementById('hit-note-location-' + this.props.trackID);
           const locationBounds = hitNoteLocation.getBoundingClientRect();
           const noteContainerBounds = collisionNote.getBoundingClientRect();
           const noteBounds = collisionNote.childNodes[0].getBoundingClientRect();
           if (
-            noteContainerBounds.top < locationBounds.top && noteContainerBounds.bottom > locationBounds.bottom
-            || noteContainerBounds.top > locationBounds.top && noteContainerBounds.bottom > locationBounds.bottom && noteContainerBounds.top < locationBounds.bottom
-            || noteContainerBounds.top < locationBounds.top && noteContainerBounds.bottom < locationBounds.bottom && noteContainerBounds.bottom > locationBounds.top
+            noteContainerBounds.top <= locationBounds.top && noteContainerBounds.bottom >= locationBounds.bottom
+            || noteContainerBounds.top >= locationBounds.top && noteContainerBounds.bottom >= locationBounds.bottom && noteContainerBounds.top < locationBounds.bottom
+            || noteContainerBounds.top <= locationBounds.top && noteContainerBounds.bottom <= locationBounds.bottom && noteContainerBounds.bottom > locationBounds.top
           ) {
             collisionNote.classList.add('checked-note');
-            if (noteBounds.top > locationBounds.top && noteBounds.bottom < locationBounds.bottom) {
-              console.log('hit note perfect', this.props.trackID);
+            if (noteBounds.top >= locationBounds.top && noteBounds.bottom <= locationBounds.bottom) {
+              // console.log('hit note perfect', this.props.trackID);
               this.props.updateScore('perfect');
               pulseColor = 'perfect';
               collisionNote.classList.add('hit-note-perfect');
             } else if (
-              noteBounds.top < locationBounds.top && noteBounds.bottom < locationBounds.bottom && noteBounds.bottom > locationBounds.top
-              || noteBounds.top > locationBounds.top && noteBounds.bottom > locationBounds.bottom && noteBounds.top < locationBounds.bottom
+              noteBounds.top <= locationBounds.top && noteBounds.bottom <= locationBounds.bottom && noteBounds.bottom > locationBounds.top
+              || noteBounds.top >= locationBounds.top && noteBounds.bottom >= locationBounds.bottom && noteBounds.top < locationBounds.bottom
             ) {
-              console.log('hit note', this.props.trackID);
+              // console.log('hit note', this.props.trackID);
               this.props.updateScore('good');
               pulseColor = 'good';
               collisionNote.classList.add('hit-note');
             } else {
-              console.log('missed note', this.props.trackID);
+              // console.log('missed note', this.props.trackID);
               this.props.updateScore('miss');
               pulseColor = 'miss';
               collisionNote.classList.add('missed-note');
@@ -78,29 +78,33 @@ export class Track extends React.Component {
   spawnNotes() {
     const currentFrame = this.props.currentFrame;
     const noteSpawnTimes = this.props.spawnTimes;
-    if (noteSpawnTimes && noteSpawnTimes.indexOf(currentFrame) !== -1) {
-      let noteTrack = document.getElementById(
-        'note-track-' + this.props.trackID
-      );
-      let noteContainer = document.createElement('div');
-      noteContainer.classList.add('note-container');
-      let note = document.createElement('div');
-      note.classList.add('note');
-      noteContainer.appendChild(note);
-      noteContainer.addEventListener('animationend', (e) => {
-        // console.log('note animation end', this.props.trackID);
-        if (!noteContainer.classList.contains('checked-note')) {
-          this.props.updateScore('miss');
+    const hitNoteLocation = document.getElementById('hit-note-location-' + this.props.trackID);
+    // console.log(this.props.trackID, this.props.spawnTimes, this.props.currentFrame);
+    let noteElements = [];
+    if (noteSpawnTimes) {
+      noteSpawnTimes.forEach((note, index) => {
+        if (currentFrame < note.startFrame || currentFrame > note.endFrame) {
+          return;
         }
-        noteTrack.removeChild(noteContainer);
+        const offsetTop = note.positions[currentFrame] + 30;
+        const pastHitNote = offsetTop > hitNoteLocation.offsetTop + NOTE_HEIGHT;
+        const noteElement = (
+          <Note
+            key={'track-' + this.props.trackID + '-note-' + index}
+            pastHitNote={pastHitNote}
+            fromTop={note.positions[currentFrame]}
+            updateScore={this.props.updateScore}/>
+        );
+        noteElements.push(noteElement);
       });
-      noteTrack.appendChild(noteContainer);
     }
+    return noteElements;
   }
 
   render() {
     return (
       <div id={'note-track-' + this.props.trackID} className={'note-track track-' + this.props.trackID}>
+        {this.spawnNotes()}
         <div id={'hit-note-location-' + this.props.trackID} className={
           this.props.isActive ? 'active-key hit-note-location' : 'hit-note-location'
         }>
