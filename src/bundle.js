@@ -20334,7 +20334,12 @@ var Note = exports.Note = function (_React$Component) {
     key: 'componentWillUpdate',
     value: function componentWillUpdate(nextProps, nextState) {
       if (nextProps.pastHitNote && !this.props.pastHitNote) {
-        this.props.updateScore('miss');
+        var note = document.getElementById('note-' + this.props.trackID + '-' + this.props.noteIndex);
+        console.log('note', note.classList);
+        if (!note.classList.contains('checked-note')) {
+          note.classList.add('checked-note', 'missed-note');
+          this.props.updateScore('miss');
+        }
       }
     }
   }, {
@@ -20343,7 +20348,8 @@ var Note = exports.Note = function (_React$Component) {
       return React.createElement(
         'div',
         {
-          className: this.props.pastHitNote ? 'note-container checked-note missed-note' : 'note-container',
+          id: 'note-' + this.props.trackID + '-' + this.props.noteIndex,
+          className: 'note-container',
           style: {
             top: this.props.fromTop
           } },
@@ -20420,17 +20426,14 @@ var Track = exports.Track = function (_React$Component) {
               if (noteContainerBounds.top <= locationBounds.top && noteContainerBounds.bottom >= locationBounds.bottom || noteContainerBounds.top >= locationBounds.top && noteContainerBounds.bottom >= locationBounds.bottom && noteContainerBounds.top < locationBounds.bottom || noteContainerBounds.top <= locationBounds.top && noteContainerBounds.bottom <= locationBounds.bottom && noteContainerBounds.bottom > locationBounds.top) {
                 collisionNote.classList.add('checked-note');
                 if (noteBounds.top >= locationBounds.top && noteBounds.bottom <= locationBounds.bottom) {
-                  // console.log('hit note perfect', this.props.trackID);
                   _this2.props.updateScore('perfect');
                   pulseColor = 'perfect';
                   collisionNote.classList.add('hit-note-perfect');
                 } else if (noteBounds.top <= locationBounds.top && noteBounds.bottom <= locationBounds.bottom && noteBounds.bottom > locationBounds.top || noteBounds.top >= locationBounds.top && noteBounds.bottom >= locationBounds.bottom && noteBounds.top < locationBounds.bottom) {
-                  // console.log('hit note', this.props.trackID);
                   _this2.props.updateScore('good');
                   pulseColor = 'good';
                   collisionNote.classList.add('hit-note');
                 } else {
-                  // console.log('missed note', this.props.trackID);
                   _this2.props.updateScore('miss');
                   pulseColor = 'miss';
                   collisionNote.classList.add('missed-note');
@@ -20458,7 +20461,6 @@ var Track = exports.Track = function (_React$Component) {
       var currentFrame = this.props.currentFrame;
       var noteSpawnTimes = this.props.spawnTimes;
       var hitNoteLocation = document.getElementById('hit-note-location-' + this.props.trackID);
-      // console.log(this.props.trackID, this.props.spawnTimes, this.props.currentFrame);
       var noteElements = [];
       if (noteSpawnTimes) {
         noteSpawnTimes.forEach(function (note, index) {
@@ -20469,6 +20471,8 @@ var Track = exports.Track = function (_React$Component) {
           var pastHitNote = offsetTop > hitNoteLocation.offsetTop + NOTE_HEIGHT;
           var noteElement = React.createElement(Note, {
             key: 'track-' + _this3.props.trackID + '-note-' + index,
+            noteIndex: index,
+            trackID: _this3.props.trackID,
             pastHitNote: pastHitNote,
             fromTop: note.positions[currentFrame],
             updateScore: _this3.props.updateScore });
@@ -20577,7 +20581,8 @@ var SONGS = {
 var MS_PER_SEC = 1000;
 var FRAME_RATE = MS_PER_SEC / 60;
 var NOTE_TRAVEL_RATE = 4; // pixels per frame
-var NOTE_START_LOCATION = -100;
+var NOTE_START_LOCATION = -130;
+var NOTE_HEIGHT = 26;
 var NOTE_END_LOCATION = 540;
 
 var KEYMAP = {
@@ -20616,7 +20621,7 @@ var App = exports.App = function (_React$Component) {
         'miss': 0
       },
       lastRender: 0,
-      lastRenderSongTime: 0
+      songDelay: 0
     };
     return _this;
   }
@@ -20635,7 +20640,6 @@ var App = exports.App = function (_React$Component) {
         }, function () {
           _this2.mapFrames();
           song.play();
-          song.volume = 0;
 
           window.requestAnimationFrame(_this2.gameLoop.bind(_this2));
         });
@@ -20691,12 +20695,12 @@ var App = exports.App = function (_React$Component) {
     value: function mapFrames() {
       // map timings to drop/spawn times
       var noteHitTimes = {
-        1: [200, 300, 400, 500, 600],
-        2: [150, 225, 325, 425, 525],
-        3: [163, 237, 382, 972, 2829],
-        4: []
+        1: [32, 161, 203, 238],
+        2: [72, 168, 208, 247],
+        3: [104, 178, 214, 254, 284],
+        4: [140, 276, 291]
       };
-
+      var earliestFrame = 0;
       var noteMap = {};
       // if note hits bottom at time t, must spawn at t - (distance / TRAVEL_RATE)
 
@@ -20706,13 +20710,17 @@ var App = exports.App = function (_React$Component) {
         var spawnTimes = noteHitTimes[track];
         var trackPositionings = [];
         spawnTimes.forEach(function (noteSpawnTime) {
-          var initialTime = noteSpawnTime - (noteHitLocation.offsetTop - NOTE_START_LOCATION) / NOTE_TRAVEL_RATE;
-          var endTime = initialTime + (NOTE_END_LOCATION - NOTE_START_LOCATION) / NOTE_TRAVEL_RATE;
+          var initialTime = Math.floor(noteSpawnTime - (noteHitLocation.offsetTop - NOTE_START_LOCATION - NOTE_HEIGHT) / NOTE_TRAVEL_RATE);
+          var endTime = Math.ceil(initialTime + (NOTE_END_LOCATION - NOTE_START_LOCATION) / NOTE_TRAVEL_RATE);
           var notePositionings = {};
           var index = 0;
           for (var i = initialTime; i < endTime; i++) {
             notePositionings[i] = NOTE_START_LOCATION + index * NOTE_TRAVEL_RATE;
             index++;
+          }
+
+          if (initialTime < earliestFrame) {
+            earliestFrame = initialTime;
           }
 
           var note = {
@@ -20728,7 +20736,7 @@ var App = exports.App = function (_React$Component) {
       for (var track in noteHitTimes) {
         _loop(track);
       }
-      console.log(noteMap);
+      console.log('notemap', noteMap);
 
       this.setState({
         noteMap: noteMap
@@ -20757,6 +20765,30 @@ var App = exports.App = function (_React$Component) {
           updateScore: this.updateScore.bind(this) }));
       }
       return tracks;
+    }
+  }, {
+    key: '_setPreviousFrame',
+    value: function _setPreviousFrame() {
+      var _this3 = this;
+
+      console.log('prev');
+      this.setState({
+        currentFrame: this.state.currentFrame - 1
+      }, function () {
+        console.log(_this3.state.currentFrame);
+      });
+    }
+  }, {
+    key: '_setNextFrame',
+    value: function _setNextFrame() {
+      var _this4 = this;
+
+      console.log('next');
+      this.setState({
+        currentFrame: this.state.currentFrame + 1
+      }, function () {
+        console.log(_this4.state.currentFrame);
+      });
     }
   }, {
     key: 'render',
@@ -20807,6 +20839,20 @@ var App = exports.App = function (_React$Component) {
             'div',
             null,
             Util.getDisplayTime(this.state.currentSongDuration)
+          )
+        ),
+        React.createElement(
+          'div',
+          { className: 'buttons' },
+          React.createElement(
+            'div',
+            { className: 'button', onClick: this._setPreviousFrame.bind(this) },
+            'Prev'
+          ),
+          React.createElement(
+            'div',
+            { className: 'button', onClick: this._setNextFrame.bind(this) },
+            'Next'
           )
         ),
         React.createElement(

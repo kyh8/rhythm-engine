@@ -9,7 +9,8 @@ const SONGS = {
 const MS_PER_SEC = 1000;
 const FRAME_RATE = MS_PER_SEC / 60;
 const NOTE_TRAVEL_RATE = 4; // pixels per frame
-const NOTE_START_LOCATION = -100;
+const NOTE_START_LOCATION = -130;
+const NOTE_HEIGHT = 26;
 const NOTE_END_LOCATION = 540;
 
 const KEYMAP = {
@@ -44,7 +45,7 @@ export class App extends React.Component {
         'miss': 0,
       },
       lastRender: 0,
-      lastRenderSongTime: 0,
+      songDelay: 0,
     }
   }
 
@@ -58,7 +59,6 @@ export class App extends React.Component {
       }, () => {
         this.mapFrames();
         song.play();
-        song.volume = 0;
 
         window.requestAnimationFrame(this.gameLoop.bind(this));
       });
@@ -100,7 +100,9 @@ export class App extends React.Component {
   updateFrame(progress) {
     if (this.state.songElement) {
       const newTime = Math.floor(this.state.songElement.currentTime);
-      const newFrame = Math.floor(this.state.songElement.currentTime * MS_PER_SEC / FRAME_RATE);
+      const newFrame = Math.floor((
+        this.state.songElement.currentTime
+      ) * MS_PER_SEC / FRAME_RATE);
       this.setState({
         currentSongTime: newTime,
         currentFrame: newFrame,
@@ -111,12 +113,12 @@ export class App extends React.Component {
   mapFrames() {
     // map timings to drop/spawn times
     const noteHitTimes = {
-      1: [200, 300, 400, 500, 600],
-      2: [150, 225, 325, 425, 525],
-      3: [163, 237, 382, 972, 2829],
-      4: [],
+      1: [32,   161, 203, 238, ],
+      2: [72,   168, 208, 247, ],
+      3: [104,  178, 214, 254,    284],
+      4: [140,                  276, 291],
     };
-
+    let earliestFrame = 0;
     let noteMap = {}
     // if note hits bottom at time t, must spawn at t - (distance / TRAVEL_RATE)
     for (let track in noteHitTimes) {
@@ -127,15 +129,19 @@ export class App extends React.Component {
       let spawnTimes = noteHitTimes[track];
       let trackPositionings = [];
       spawnTimes.forEach((noteSpawnTime) => {
-        let initialTime = noteSpawnTime -
-          (noteHitLocation.offsetTop - NOTE_START_LOCATION) / NOTE_TRAVEL_RATE;
-        let endTime = initialTime +
-          (NOTE_END_LOCATION - NOTE_START_LOCATION) / NOTE_TRAVEL_RATE;
+        let initialTime = Math.floor(noteSpawnTime -
+          (noteHitLocation.offsetTop - NOTE_START_LOCATION - NOTE_HEIGHT) / NOTE_TRAVEL_RATE);
+        let endTime = Math.ceil(initialTime +
+          (NOTE_END_LOCATION - NOTE_START_LOCATION) / NOTE_TRAVEL_RATE);
         let notePositionings = {};
         let index = 0;
         for (let i = initialTime; i < endTime; i++) {
           notePositionings[i] = NOTE_START_LOCATION + index * NOTE_TRAVEL_RATE;
           index++;
+        }
+
+        if (initialTime < earliestFrame) {
+          earliestFrame = initialTime;
         }
 
         let note = {
@@ -147,7 +153,7 @@ export class App extends React.Component {
       });
       noteMap[track] = trackPositionings;
     }
-    console.log(noteMap);
+    console.log('notemap', noteMap);
 
     this.setState({
       noteMap: noteMap,
@@ -176,6 +182,20 @@ export class App extends React.Component {
       );
     }
     return tracks;
+  }
+
+  _setPreviousFrame() {
+    console.log('prev')
+    this.setState({
+      currentFrame: this.state.currentFrame - 1,
+    }, () => {console.log(this.state.currentFrame)});
+  }
+
+  _setNextFrame() {
+    console.log('next');
+    this.setState({
+      currentFrame: this.state.currentFrame + 1,
+    }, () => {console.log(this.state.currentFrame)});
   }
 
   render() {
@@ -212,6 +232,14 @@ export class App extends React.Component {
           </div>
           <div>
             {Util.getDisplayTime(this.state.currentSongDuration)}
+          </div>
+        </div>
+        <div className='buttons'>
+          <div className='button' onClick={this._setPreviousFrame.bind(this)}>
+            Prev
+          </div>
+          <div className='button' onClick={this._setNextFrame.bind(this)}>
+            Next
           </div>
         </div>
         <div className='scores'>

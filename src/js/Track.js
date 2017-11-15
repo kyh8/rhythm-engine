@@ -40,7 +40,6 @@ export class Track extends React.Component {
           ) {
             collisionNote.classList.add('checked-note');
             if (noteBounds.top >= locationBounds.top && noteBounds.bottom <= locationBounds.bottom) {
-              // console.log('hit note perfect', this.props.trackID);
               this.props.updateScore('perfect');
               pulseColor = 'perfect';
               collisionNote.classList.add('hit-note-perfect');
@@ -48,12 +47,10 @@ export class Track extends React.Component {
               noteBounds.top <= locationBounds.top && noteBounds.bottom <= locationBounds.bottom && noteBounds.bottom > locationBounds.top
               || noteBounds.top >= locationBounds.top && noteBounds.bottom >= locationBounds.bottom && noteBounds.top < locationBounds.bottom
             ) {
-              // console.log('hit note', this.props.trackID);
               this.props.updateScore('good');
               pulseColor = 'good';
               collisionNote.classList.add('hit-note');
             } else {
-              // console.log('missed note', this.props.trackID);
               this.props.updateScore('miss');
               pulseColor = 'miss';
               collisionNote.classList.add('missed-note');
@@ -79,7 +76,6 @@ export class Track extends React.Component {
     const currentFrame = this.props.currentFrame;
     const noteSpawnTimes = this.props.spawnTimes;
     const hitNoteLocation = document.getElementById('hit-note-location-' + this.props.trackID);
-    // console.log(this.props.trackID, this.props.spawnTimes, this.props.currentFrame);
     let noteElements = [];
     if (noteSpawnTimes) {
       noteSpawnTimes.forEach((note, index) => {
@@ -91,6 +87,8 @@ export class Track extends React.Component {
         const noteElement = (
           <Note
             key={'track-' + this.props.trackID + '-note-' + index}
+            noteIndex={index}
+            trackID={this.props.trackID}
             pastHitNote={pastHitNote}
             fromTop={note.positions[currentFrame]}
             updateScore={this.props.updateScore}/>

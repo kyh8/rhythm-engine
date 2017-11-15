@@ -240,3 +240,23 @@ body {
   box-shadow: 0 0 8px #0080FF;
   border-color: #0080FF;
 }
+
+.buttons {
+  display: flex;
+}
+
+.button {
+  padding: 10px;
+  background-color: lightgray;
+  border-radius: 8px;
+  cursor: pointer;
+  margin-left: 20px;
+}
+
+.button:first-child {
+  margin-left: 0;
+}
+
+.button:hover {
+  background-color: gray;
+}
