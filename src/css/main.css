@@ -86,7 +86,7 @@ body {
 
 .note-track {
   height: 100%;
-  width: 60px;
+  width: 70px;
   background-color: rgba(0, 0, 0, 0.7);
   margin-left: 30px;
   position: relative;
@@ -100,7 +100,7 @@ body {
 .note-container {
   position: absolute;
   top: -100px;
-  left: 14px;
+  left: 19px;
 }
 /*
 .note-container.missed-note {
@@ -146,11 +146,44 @@ body {
 .hit-note-location {
   position: absolute;
   bottom: 40px;
-  left: 10px;
+  left: 15px;
   width: 36px;
   height: 36px;
   border-radius: 50%;
   border: 2px solid white;
+}
+
+.hit-note-type {
+  text-shadow:
+		-1px -1px 0 white,
+		1px -1px 0 white,
+		-1px 1px 0 white,
+		1px 1px 0 white;
+  font-weight: bold;
+  position: absolute;
+  opacity: 1;
+  bottom: 100px;
+  text-align: center;
+  width: 100%;
+  font-size: 14px;
+  letter-spacing: 1px;
+  animation: text-animate 0.6s ease-in forwards;
+}
+
+.hit-note-type.perfect {
+  color: green;
+}
+
+.hit-note-type.good {
+  color: orange;
+  letter-spacing: 2px;
+}
+
+@keyframes text-animate {
+  100% {
+    opacity: 0;
+    bottom: 140px;
+  }
 }
 
 .hit-note-location-pulse {

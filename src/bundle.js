@@ -20381,6 +20381,7 @@ var Note = require('./Note');
 var React = require('react');
 
 var NOTE_HEIGHT = 30;
+var NOTE_CONTAINER_MARGIN = 30;
 
 var Track = exports.Track = function (_React$Component) {
   _inherits(Track, _React$Component);
@@ -20445,6 +20446,19 @@ var Track = exports.Track = function (_React$Component) {
 
           var pulse = document.createElement('div');
           pulse.classList.add('hit-note-location-pulse', pulseColor);
+          if (pulseColor === 'perfect' || pulseColor === 'good') {
+            (function () {
+              var track = document.getElementById('note-track-' + _this2.props.trackID);
+              var hitType = document.createElement('div');
+              hitType.classList.add('hit-note-type', pulseColor);
+              hitType.innerText = pulseColor.toUpperCase();
+              track.appendChild(hitType);
+              hitType.addEventListener('animationend', function () {
+                track.removeChild(hitType);
+              });
+            })();
+          }
+
           hitNotePulse.appendChild(pulse);
           pulse.addEventListener('animationend', function () {
             hitNotePulse.removeChild(pulse);
@@ -20466,7 +20480,7 @@ var Track = exports.Track = function (_React$Component) {
           if (currentFrame < note.startFrame || currentFrame > note.endFrame) {
             return;
           }
-          var offsetTop = note.positions[currentFrame] + 30;
+          var offsetTop = note.positions[currentFrame] + NOTE_CONTAINER_MARGIN;
           var pastHitNote = offsetTop > hitNoteLocation.offsetTop + NOTE_HEIGHT;
           var noteElement = React.createElement(Note, {
             key: 'track-' + _this3.props.trackID + '-note-' + index,
@@ -20693,12 +20707,11 @@ var App = exports.App = function (_React$Component) {
     key: 'mapFrames',
     value: function mapFrames() {
       // map timings to drop/spawn times
-      123432343;
       var noteHitTimes = {
         1: [30, 161, 199, 238],
-        2: [48, 105, 168, 208, 247],
+        2: [48, 101, 168, 208, 247],
         3: [68, 86, 121, 140, 178, 214, 254, 284],
-        4: [80, 132, 276, 291]
+        4: [77, 132, 276, 291]
       };
       var earliestFrame = 0;
       var noteMap = {};

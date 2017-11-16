@@ -2,6 +2,7 @@ const Note = require('./Note');
 const React = require('react');
 
 const NOTE_HEIGHT = 30;
+const NOTE_CONTAINER_MARGIN = 30;
 
 export class Track extends React.Component {
   constructor(props) {
@@ -65,6 +66,17 @@ export class Track extends React.Component {
 
       let pulse = document.createElement('div');
       pulse.classList.add('hit-note-location-pulse', pulseColor);
+      if (pulseColor === 'perfect' || pulseColor === 'good') {
+        let track = document.getElementById('note-track-' + this.props.trackID);
+        let hitType = document.createElement('div');
+        hitType.classList.add('hit-note-type', pulseColor);
+        hitType.innerText = pulseColor.toUpperCase();
+        track.appendChild(hitType);
+        hitType.addEventListener('animationend', () => {
+          track.removeChild(hitType);
+        });
+      }
+
       hitNotePulse.appendChild(pulse);
       pulse.addEventListener('animationend', () => {
         hitNotePulse.removeChild(pulse);
@@ -82,7 +94,7 @@ export class Track extends React.Component {
         if (currentFrame < note.startFrame || currentFrame > note.endFrame) {
           return;
         }
-        const offsetTop = note.positions[currentFrame] + 30;
+        const offsetTop = note.positions[currentFrame] + NOTE_CONTAINER_MARGIN;
         const pastHitNote = offsetTop > hitNoteLocation.offsetTop + NOTE_HEIGHT;
         const noteElement = (
           <Note
