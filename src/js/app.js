@@ -3,7 +3,7 @@ const Track = require('./Track');
 const Util = require('./Util');
 
 const SONGS = {
-  'Gamers!': 'src/assets/gamers.mp3',
+  'Gamers! by Hisako Kanemoto': 'src/assets/gamers.mp3',
 }
 
 const MS_PER_SEC = 1000;
@@ -198,21 +198,67 @@ export class App extends React.Component {
     }, () => {console.log(this.state.currentFrame)});
   }
 
+  _restartGame() {
+    if (this.state.songElement) {
+      this.state.songElement.currentTime = 0;
+      this.setState({
+        scores: {
+          'perfect': 0,
+          'good': 0,
+          'miss': 0,
+        },
+      }, () => {
+        this.state.songElement.play();
+      });
+    }
+  }
+
+  _pauseGame() {
+    if (this.state.songElement) {
+      if (this.state.songElement.paused) {
+        this.state.songElement.play();
+      } else {
+        this.state.songElement.pause();
+      }
+    }
+  }
+
   render() {
     return (
       <div className="game-container">
         <div className='now-playing-song-name'>
-          <span className='now-playing-label'>
-            {'Now Playing: '}
-          </span>
-          <span className='now-playing-song-label'>
+          <div className='now-playing-label'>
+            <div>
+              <i className="fa fa-play-circle" aria-hidden="true"/>
+            </div>
+            <div>
+              {'Now Playing'}
+            </div>
+          </div>
+          <div className='now-playing-song-label'>
             {this.state.currentSongName}
-          </span>
+          </div>
         </div>
-        <div className='game-editor'>
-          {this.renderTracks()}
+        <div className='game-content-container'>
+          <div className='game-editor'>
+            {this.renderTracks()}
+          </div>
         </div>
-        <audio controls id={'now-playing-song'}>
+        <div className='scores'>
+          <div className='scoreBanner perfect-notes'>
+            <div className='score-banner-label'>PERFECT</div>
+            <div className='score'>{this.state.scores.perfect}</div>
+          </div>
+          <div className='scoreBanner good-notes'>
+            <div className='score-banner-label'>GOOD</div>
+            <div className='score'>{this.state.scores.good}</div>
+          </div>
+          <div className='scoreBanner missed-notes'>
+            <div className='score-banner-label'>MISSED</div>
+            <div className='score'>{this.state.scores.miss}</div>
+          </div>
+        </div>
+        <audio id={'now-playing-song'}>
           <source src={this.state.currentSong} type="audio/mpeg"/>
         </audio>
         <div className='buttons'>
@@ -223,15 +269,19 @@ export class App extends React.Component {
             Next
           </div>
         </div>
-        <div className='scores'>
-          <div className='perfect-notes'>
-            {'perfect: ' + this.state.scores.perfect}
+        <div className='menu-tray'>
+          <div className='menu-item' onClick={this._restartGame.bind(this)}>
+            <i className="fa fa-reply" aria-hidden="true"/>
           </div>
-          <div className='good-notes'>
-            {'good: ' + this.state.scores.good}
+          <div className='menu-item' onClick={this._pauseGame.bind(this)}>
+            <i className={
+              this.state.songElement && this.state.songElement.paused
+              ? "fa fa-play"
+              : "fa fa-pause"
+            } aria-hidden="true"/>
           </div>
-          <div className='missed-notes'>
-            {'misses: ' + this.state.scores.miss}
+          <div className='menu-item'>
+            <i className="fa fa-info-circle" aria-hidden="true"/>
           </div>
         </div>
         <div className='frame-count'>

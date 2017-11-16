@@ -20336,7 +20336,6 @@ var Note = exports.Note = function (_React$Component) {
       if (nextProps.pastHitNote && !this.props.pastHitNote) {
         var note = document.getElementById('note-' + this.props.trackID + '-' + this.props.noteIndex);
         if (!note.classList.contains('checked-note')) {
-          note.classList.add('checked-note', 'missed-note');
           this.props.updateScore('miss');
         }
       }
@@ -20481,7 +20480,7 @@ var Track = exports.Track = function (_React$Component) {
             return;
           }
           var offsetTop = note.positions[currentFrame] + NOTE_CONTAINER_MARGIN;
-          var pastHitNote = offsetTop > hitNoteLocation.offsetTop + NOTE_HEIGHT;
+          var pastHitNote = offsetTop >= 500;
           var noteElement = React.createElement(Note, {
             key: 'track-' + _this3.props.trackID + '-note-' + index,
             noteIndex: index,
@@ -20588,7 +20587,7 @@ var Track = require('./Track');
 var Util = require('./Util');
 
 var SONGS = {
-  'Gamers!': 'src/assets/gamers.mp3'
+  'Gamers! by Hisako Kanemoto': 'src/assets/gamers.mp3'
 };
 
 var MS_PER_SEC = 1000;
@@ -20804,6 +20803,35 @@ var App = exports.App = function (_React$Component) {
       });
     }
   }, {
+    key: '_restartGame',
+    value: function _restartGame() {
+      var _this5 = this;
+
+      if (this.state.songElement) {
+        this.state.songElement.currentTime = 0;
+        this.setState({
+          scores: {
+            'perfect': 0,
+            'good': 0,
+            'miss': 0
+          }
+        }, function () {
+          _this5.state.songElement.play();
+        });
+      }
+    }
+  }, {
+    key: '_pauseGame',
+    value: function _pauseGame() {
+      if (this.state.songElement) {
+        if (this.state.songElement.paused) {
+          this.state.songElement.play();
+        } else {
+          this.state.songElement.pause();
+        }
+      }
+    }
+  }, {
     key: 'render',
     value: function render() {
       return React.createElement(
@@ -20813,24 +20841,83 @@ var App = exports.App = function (_React$Component) {
           'div',
           { className: 'now-playing-song-name' },
           React.createElement(
-            'span',
+            'div',
             { className: 'now-playing-label' },
-            'Now Playing: '
+            React.createElement(
+              'div',
+              null,
+              React.createElement('i', { className: 'fa fa-play-circle', 'aria-hidden': 'true' })
+            ),
+            React.createElement(
+              'div',
+              null,
+              'Now Playing'
+            )
           ),
           React.createElement(
-            'span',
+            'div',
             { className: 'now-playing-song-label' },
             this.state.currentSongName
           )
         ),
         React.createElement(
           'div',
-          { className: 'game-editor' },
-          this.renderTracks()
+          { className: 'game-content-container' },
+          React.createElement(
+            'div',
+            { className: 'game-editor' },
+            this.renderTracks()
+          )
+        ),
+        React.createElement(
+          'div',
+          { className: 'scores' },
+          React.createElement(
+            'div',
+            { className: 'scoreBanner perfect-notes' },
+            React.createElement(
+              'div',
+              { className: 'score-banner-label' },
+              'PERFECT'
+            ),
+            React.createElement(
+              'div',
+              { className: 'score' },
+              this.state.scores.perfect
+            )
+          ),
+          React.createElement(
+            'div',
+            { className: 'scoreBanner good-notes' },
+            React.createElement(
+              'div',
+              { className: 'score-banner-label' },
+              'GOOD'
+            ),
+            React.createElement(
+              'div',
+              { className: 'score' },
+              this.state.scores.good
+            )
+          ),
+          React.createElement(
+            'div',
+            { className: 'scoreBanner missed-notes' },
+            React.createElement(
+              'div',
+              { className: 'score-banner-label' },
+              'MISSED'
+            ),
+            React.createElement(
+              'div',
+              { className: 'score' },
+              this.state.scores.miss
+            )
+          )
         ),
         React.createElement(
           'audio',
-          { controls: true, id: 'now-playing-song' },
+          { id: 'now-playing-song' },
           React.createElement('source', { src: this.state.currentSong, type: 'audio/mpeg' })
         ),
         React.createElement(
@@ -20849,21 +20936,21 @@ var App = exports.App = function (_React$Component) {
         ),
         React.createElement(
           'div',
-          { className: 'scores' },
+          { className: 'menu-tray' },
           React.createElement(
             'div',
-            { className: 'perfect-notes' },
-            'perfect: ' + this.state.scores.perfect
+            { className: 'menu-item', onClick: this._restartGame.bind(this) },
+            React.createElement('i', { className: 'fa fa-reply', 'aria-hidden': 'true' })
           ),
           React.createElement(
             'div',
-            { className: 'good-notes' },
-            'good: ' + this.state.scores.good
+            { className: 'menu-item', onClick: this._pauseGame.bind(this) },
+            React.createElement('i', { className: this.state.songElement && this.state.songElement.paused ? "fa fa-play" : "fa fa-pause", 'aria-hidden': 'true' })
           ),
           React.createElement(
             'div',
-            { className: 'missed-notes' },
-            'misses: ' + this.state.scores.miss
+            { className: 'menu-item' },
+            React.createElement('i', { className: 'fa fa-info-circle', 'aria-hidden': 'true' })
           )
         ),
         React.createElement(

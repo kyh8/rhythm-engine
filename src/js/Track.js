@@ -95,7 +95,7 @@ export class Track extends React.Component {
           return;
         }
         const offsetTop = note.positions[currentFrame] + NOTE_CONTAINER_MARGIN;
-        const pastHitNote = offsetTop > hitNoteLocation.offsetTop + NOTE_HEIGHT;
+        const pastHitNote = offsetTop >= 500;
         const noteElement = (
           <Note
             key={'track-' + this.props.trackID + '-note-' + index}
