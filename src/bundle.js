@@ -20587,7 +20587,9 @@ var Track = require('./Track');
 var Util = require('./Util');
 
 var SONGS = {
-  'Gamers! by Hisako Kanemoto': 'src/assets/gamers.mp3'
+  'Gamers! by Hisako Kanemoto': 'src/assets/gamers.mp3',
+  'Hikaru Nara by Goose House': 'src/assets/your_lie_in_april_op.mp3',
+  'Shelter by Porter Robinson': 'src/assets/shelter.mp3'
 };
 
 var MS_PER_SEC = 1000;

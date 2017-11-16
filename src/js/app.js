@@ -4,6 +4,8 @@ const Util = require('./Util');
 
 const SONGS = {
   'Gamers! by Hisako Kanemoto': 'src/assets/gamers.mp3',
+  'Hikaru Nara by Goose House': 'src/assets/your_lie_in_april_op.mp3',
+  'Shelter by Porter Robinson': 'src/assets/shelter.mp3',
 }
 
 const MS_PER_SEC = 1000;
