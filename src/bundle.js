@@ -20680,7 +20680,7 @@ var App = exports.App = function (_React$Component) {
   }, {
     key: 'updateFrame',
     value: function updateFrame(progress) {
-      if (this.state.songElement) {
+      if (this.state.songElement && !this.state.songElement.paused) {
         var newTime = Math.floor(this.state.songElement.currentTime);
         var newFrame = Math.floor(this.state.songElement.currentTime * MS_PER_SEC / FRAME_RATE);
         this.setState({

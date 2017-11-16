@@ -98,7 +98,7 @@ export class App extends React.Component {
   }
 
   updateFrame(progress) {
-    if (this.state.songElement) {
+    if (this.state.songElement && !this.state.songElement.paused) {
       const newTime = Math.floor(this.state.songElement.currentTime);
       const newFrame = Math.floor((
         this.state.songElement.currentTime

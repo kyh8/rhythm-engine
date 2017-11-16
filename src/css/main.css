@@ -124,8 +124,23 @@ body {
   margin: 30px 0;
 }
 
-.note-container.checked-note .note {
+.note-container.checked-note.missed-note .note {
   background-color: rgba(255,255,255,0.3);
+}
+
+.note-container.checked-note.hit-note-perfect .note,
+.note-container.checked-note.hit-note .note {
+  background-color: white;
+  animation: success-note 0.3s forwards 1;
+}
+
+@keyframes success-note {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
 }
 
 .hit-note-location {
@@ -224,21 +239,25 @@ body {
 .track-1 .active-key.hit-note-location {
   box-shadow: 0 0 8px #00B300;
   border-color: #00B300;
+  /* rgba(0,179,0,0.5) */
 }
 
 .track-2 .active-key.hit-note-location {
   box-shadow: 0 0 8px #FF4D4D;
   border-color: #FF4D4D;
+  /* rgba(255,77,77,0.5) */
 }
 
 .track-3 .active-key.hit-note-location {
   box-shadow: 0 0 8px #cccc22;
   border-color: #cccc22;
+  /* rgba(204,204,34,0.5) */
 }
 
 .track-4 .active-key.hit-note-location {
   box-shadow: 0 0 8px #0080FF;
   border-color: #0080FF;
+  /* rgba(0,128,255,0.5) */
 }
 
 .buttons {
