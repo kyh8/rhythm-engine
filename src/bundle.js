@@ -20810,11 +20810,6 @@ var App = exports.App = function (_React$Component) {
         'div',
         { className: 'game-container' },
         React.createElement(
-          'audio',
-          { controls: true, id: 'now-playing-song' },
-          React.createElement('source', { src: this.state.currentSong, type: 'audio/mpeg' })
-        ),
-        React.createElement(
           'div',
           { className: 'now-playing-song-name' },
           React.createElement(
@@ -20834,25 +20829,9 @@ var App = exports.App = function (_React$Component) {
           this.renderTracks()
         ),
         React.createElement(
-          'div',
-          { className: 'now-playing-song-time unselectable' },
-          React.createElement(
-            'div',
-            null,
-            this.state.currentSongTime > this.state.currentSongDuration ? Util.getDisplayTime(this.state.currentSongDuration) : Util.getDisplayTime(this.state.currentSongTime)
-          ),
-          React.createElement(
-            'div',
-            { className: 'time-scrub-container' },
-            React.createElement('div', { className: 'time-scrub', style: {
-                left: this.state.currentSongTime / this.state.currentSongDuration * 390 + 'px'
-              } })
-          ),
-          React.createElement(
-            'div',
-            null,
-            Util.getDisplayTime(this.state.currentSongDuration)
-          )
+          'audio',
+          { controls: true, id: 'now-playing-song' },
+          React.createElement('source', { src: this.state.currentSong, type: 'audio/mpeg' })
         ),
         React.createElement(
           'div',

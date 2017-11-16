@@ -201,9 +201,6 @@ export class App extends React.Component {
   render() {
     return (
       <div className="game-container">
-        <audio controls id={'now-playing-song'}>
-          <source src={this.state.currentSong} type="audio/mpeg"/>
-        </audio>
         <div className='now-playing-song-name'>
           <span className='now-playing-label'>
             {'Now Playing: '}
@@ -215,25 +212,9 @@ export class App extends React.Component {
         <div className='game-editor'>
           {this.renderTracks()}
         </div>
-        <div className='now-playing-song-time unselectable'>
-          <div>
-            {
-              this.state.currentSongTime > this.state.currentSongDuration
-              ? Util.getDisplayTime(this.state.currentSongDuration)
-              : Util.getDisplayTime(this.state.currentSongTime)
-            }
-          </div>
-          <div className='time-scrub-container'>
-            <div className='time-scrub' style={{
-              left: (
-                this.state.currentSongTime / this.state.currentSongDuration
-              ) * 390 + 'px',
-            }}/>
-          </div>
-          <div>
-            {Util.getDisplayTime(this.state.currentSongDuration)}
-          </div>
-        </div>
+        <audio controls id={'now-playing-song'}>
+          <source src={this.state.currentSong} type="audio/mpeg"/>
+        </audio>
         <div className='buttons'>
           <div className='button' onClick={this._setPreviousFrame.bind(this)}>
             Prev
