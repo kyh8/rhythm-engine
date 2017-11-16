@@ -20337,6 +20337,7 @@ var Note = exports.Note = function (_React$Component) {
         var note = document.getElementById('note-' + this.props.trackID + '-' + this.props.noteIndex);
         if (!note.classList.contains('checked-note')) {
           this.props.updateScore('miss');
+          note.classList.add('checked-note');
         }
       }
     }
@@ -20659,6 +20660,13 @@ var App = exports.App = function (_React$Component) {
         });
       });
 
+      window.onkeypress = function (e) {
+        var key = e.keyCode ? e.keyCode : e.which;
+        if (key === 32) {
+          _this2._pauseGame();
+        }
+      };
+
       window.onkeydown = function (e) {
         var key = e.keyCode ? e.keyCode : e.which;
         if (KEYMAP[key] && _this2.state.activeKeys.indexOf(KEYMAP[key]) === -1) {
@@ -20709,10 +20717,10 @@ var App = exports.App = function (_React$Component) {
     value: function mapFrames() {
       // map timings to drop/spawn times
       var noteHitTimes = {
-        1: [30, 161, 199, 238],
-        2: [48, 101, 168, 208, 247],
-        3: [68, 86, 121, 140, 178, 214, 254, 284],
-        4: [77, 132, 276, 291]
+        1: [30, 161, 199, 238, 310, 407, 468, 640, 836],
+        2: [48, 101, 168, 208, 247, 319, 397, 428, 448, 478, 544, 794, 815, 836],
+        3: [68, 86, 121, 140, 178, 214, 254, 284, 331, 385, 437, 487, 503, 523, 566, 794, 815],
+        4: [77, 132, 276, 291, 359, 378, 511, 715]
       };
       var earliestFrame = 0;
       var noteMap = {};
@@ -20859,7 +20867,7 @@ var App = exports.App = function (_React$Component) {
           React.createElement(
             'div',
             { className: 'now-playing-song-label' },
-            this.state.currentSongName
+            this.state.currentSongName.toUpperCase()
           )
         ),
         React.createElement(

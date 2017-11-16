@@ -10,6 +10,7 @@ export class Note extends React.Component {
       let note = document.getElementById('note-' + this.props.trackID + '-' + this.props.noteIndex);
       if (!note.classList.contains('checked-note')) {
         this.props.updateScore('miss');
+        note.classList.add('checked-note');
       }
     }
   }

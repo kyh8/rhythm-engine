@@ -66,6 +66,13 @@ export class App extends React.Component {
       });
     });
 
+    window.onkeypress = (e) => {
+      let key = e.keyCode ? e.keyCode : e.which;
+      if (key === 32) {
+        this._pauseGame();
+      }
+    }
+
     window.onkeydown = (e) => {
       let key = e.keyCode ? e.keyCode : e.which;
       if (KEYMAP[key] && this.state.activeKeys.indexOf(KEYMAP[key]) === -1) {
@@ -115,10 +122,10 @@ export class App extends React.Component {
   mapFrames() {
     // map timings to drop/spawn times
     const noteHitTimes = {
-      1: [30,               161, 199, 238, ],
-      2: [48, 101,           168, 208, 247, ],
-      3: [68, 86, 121, 140, 178, 214, 254,    284],
-      4: [77,     132,                      276, 291],
+      1: [30,               161, 199, 238,            310,  407,            468,                        640,            836,],
+      2: [48, 101,           168, 208, 247,           319,  397,  428,  448,478,        544,                794,  815,  836,],
+      3: [68, 86, 121, 140, 178, 214, 254,    284,    331,  385,  437,      487,  503,  523, 566,           794,  815,],
+      4: [77,     132,                      276, 291, 359,  378,                  511,                  715],
     };
     let earliestFrame = 0;
     let noteMap = {}
@@ -238,7 +245,7 @@ export class App extends React.Component {
             </div>
           </div>
           <div className='now-playing-song-label'>
-            {this.state.currentSongName}
+            {this.state.currentSongName.toUpperCase()}
           </div>
         </div>
         <div className='game-content-container'>
