@@ -20335,7 +20335,6 @@ var Note = exports.Note = function (_React$Component) {
     value: function componentWillUpdate(nextProps, nextState) {
       if (nextProps.pastHitNote && !this.props.pastHitNote) {
         var note = document.getElementById('note-' + this.props.trackID + '-' + this.props.noteIndex);
-        console.log('note', note.classList);
         if (!note.classList.contains('checked-note')) {
           note.classList.add('checked-note', 'missed-note');
           this.props.updateScore('miss');
@@ -20694,11 +20693,12 @@ var App = exports.App = function (_React$Component) {
     key: 'mapFrames',
     value: function mapFrames() {
       // map timings to drop/spawn times
+      123432343;
       var noteHitTimes = {
-        1: [32, 161, 203, 238],
-        2: [72, 168, 208, 247],
-        3: [104, 178, 214, 254, 284],
-        4: [140, 276, 291]
+        1: [30, 161, 199, 238],
+        2: [48, 105, 168, 208, 247],
+        3: [68, 86, 121, 140, 178, 214, 254, 284],
+        4: [80, 132, 276, 291]
       };
       var earliestFrame = 0;
       var noteMap = {};

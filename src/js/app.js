@@ -112,11 +112,12 @@ export class App extends React.Component {
 
   mapFrames() {
     // map timings to drop/spawn times
+    123432343
     const noteHitTimes = {
-      1: [32,   161, 203, 238, ],
-      2: [72,   168, 208, 247, ],
-      3: [104,  178, 214, 254,    284],
-      4: [140,                  276, 291],
+      1: [30,               161, 199, 238, ],
+      2: [48, 105,           168, 208, 247, ],
+      3: [68, 86, 121, 140, 178, 214, 254,    284],
+      4: [80,     132,                      276, 291],
     };
     let earliestFrame = 0;
     let noteMap = {}

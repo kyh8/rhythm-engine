@@ -8,7 +8,6 @@ export class Note extends React.Component {
   componentWillUpdate(nextProps, nextState) {
     if (nextProps.pastHitNote && !this.props.pastHitNote) {
       let note = document.getElementById('note-' + this.props.trackID + '-' + this.props.noteIndex);
-      console.log('note', note.classList);
       if (!note.classList.contains('checked-note')) {
         note.classList.add('checked-note', 'missed-note');
         this.props.updateScore('miss');
