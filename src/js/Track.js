@@ -66,7 +66,7 @@ export class Track extends React.Component {
 
       let pulse = document.createElement('div');
       pulse.classList.add('hit-note-location-pulse', pulseColor);
-      if (pulseColor === 'perfect' || pulseColor === 'good') {
+      if (pulseColor === 'perfect' || pulseColor === 'good' || pulseColor === 'miss') {
         let track = document.getElementById('note-track-' + this.props.trackID);
         let hitType = document.createElement('div');
         hitType.classList.add('hit-note-type', pulseColor);

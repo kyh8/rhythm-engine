@@ -193,6 +193,10 @@ audio {
   letter-spacing: 2px;
 }
 
+.hit-note-type.miss {
+  color: red;
+}
+
 @keyframes text-animate {
   100% {
     opacity: 0;

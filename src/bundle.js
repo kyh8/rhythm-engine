@@ -20446,7 +20446,7 @@ var Track = exports.Track = function (_React$Component) {
 
           var pulse = document.createElement('div');
           pulse.classList.add('hit-note-location-pulse', pulseColor);
-          if (pulseColor === 'perfect' || pulseColor === 'good') {
+          if (pulseColor === 'perfect' || pulseColor === 'good' || pulseColor === 'miss') {
             (function () {
               var track = document.getElementById('note-track-' + _this2.props.trackID);
               var hitType = document.createElement('div');
@@ -20665,6 +20665,9 @@ var App = exports.App = function (_React$Component) {
         if (key === 32) {
           _this2._pauseGame();
         }
+        if (key === 114) {
+          _this2._restartGame();
+        }
       };
 
       window.onkeydown = function (e) {
@@ -20717,7 +20720,7 @@ var App = exports.App = function (_React$Component) {
     value: function mapFrames() {
       // map timings to drop/spawn times
       var noteHitTimes = {
-        1: [30, 161, 199, 238, 310, 407, 468, 640, 836],
+        1: [30, 161, 199, 238, 310, 407, 468, 635, 836],
         2: [48, 101, 168, 208, 247, 319, 397, 428, 448, 478, 544, 794, 815, 836],
         3: [68, 86, 121, 140, 178, 214, 254, 284, 331, 385, 437, 487, 503, 523, 566, 794, 815],
         4: [77, 132, 276, 291, 359, 378, 511, 715]
