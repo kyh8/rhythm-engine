@@ -20761,7 +20761,12 @@ var App = exports.App = function (_React$Component) {
   }, {
     key: 'printRegisteredFrets',
     value: function printRegisteredFrets() {
-      console.log('registered frets', this.state.registeredFrets);
+      var recordedSheet = '';
+      for (var time in this.state.registeredFrets) {
+        var tracks = this.state.registeredFrets[time];
+        recordedSheet += '"' + time + '": [' + tracks[0] + ', ' + tracks[1] + ', ' + tracks[2] + ', ' + tracks[3] + '],\n';
+      }
+      console.log('recorded sheet\n', recordedSheet);
     }
   }, {
     key: 'clearRegisteredFrets',

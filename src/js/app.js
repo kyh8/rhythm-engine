@@ -148,7 +148,12 @@ export class App extends React.Component {
   }
 
   printRegisteredFrets() {
-    console.log('registered frets', this.state.registeredFrets);
+    let recordedSheet = '';
+    for (let time in this.state.registeredFrets) {
+      let tracks = this.state.registeredFrets[time];
+      recordedSheet += '"' + time + '": [' + tracks[0] + ', ' + tracks[1] + ', ' + tracks[2] + ', ' + tracks[3] + '],\n';
+    }
+    console.log('recorded sheet\n', recordedSheet);
   }
 
   clearRegisteredFrets() {
