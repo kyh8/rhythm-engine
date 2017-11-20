@@ -7,6 +7,7 @@ const NOTE_CONTAINER_MARGIN = 30;
 export class Track extends React.Component {
   constructor(props) {
     super(props);
+    this.activeNotes = [];
   }
 
   componentDidMount() {
@@ -19,6 +20,7 @@ export class Track extends React.Component {
   componentWillUpdate(nextProps, nextState) {
     if (nextProps.isActive === true && this.props.isActive === false) {
       let noteTrack = document.getElementById('note-track-' + this.props.trackID);
+      this.props.registerFret(this.props.trackID, this.props.currentFrame);
 
       let pulseColor = 'none';
       let notes = Array.from(noteTrack.childNodes);
@@ -30,28 +32,26 @@ export class Track extends React.Component {
         // in other words, the note closest to the bottom
         if (notes.length > 0) {
           let collisionNote = notes[0];
+          const currentFrame = this.props.currentFrame;
+          let collisionTime = this.activeNotes[0];
           const hitNoteLocation = document.getElementById('hit-note-location-' + this.props.trackID);
-          const locationBounds = hitNoteLocation.getBoundingClientRect();
-          const noteContainerBounds = collisionNote.getBoundingClientRect();
-          const noteBounds = collisionNote.childNodes[0].getBoundingClientRect();
-          if (
-            noteContainerBounds.top <= locationBounds.top && noteContainerBounds.bottom >= locationBounds.bottom
-            || noteContainerBounds.top >= locationBounds.top && noteContainerBounds.bottom >= locationBounds.bottom && noteContainerBounds.top < locationBounds.bottom
-            || noteContainerBounds.top <= locationBounds.top && noteContainerBounds.bottom <= locationBounds.bottom && noteContainerBounds.bottom > locationBounds.top
-          ) {
+          const hitRange = Math.abs(collisionTime - currentFrame);
+
+          if (hitRange <= 10) {
             collisionNote.classList.add('checked-note');
-            if (noteBounds.top >= locationBounds.top && noteBounds.bottom <= locationBounds.bottom) {
+            // we registered an action on the note - remove it.
+            if (this.activeNotes.indexOf(collisionTime) !== -1) {
+              this.activeNotes.splice(this.activeNotes.indexOf(collisionTime), 1);
+            }
+            if (hitRange <= 2) {
               this.props.updateScore('perfect');
               pulseColor = 'perfect';
               collisionNote.classList.add('hit-note-perfect');
-            } else if (
-              noteBounds.top <= locationBounds.top && noteBounds.bottom <= locationBounds.bottom && noteBounds.bottom > locationBounds.top
-              || noteBounds.top >= locationBounds.top && noteBounds.bottom >= locationBounds.bottom && noteBounds.top < locationBounds.bottom
-            ) {
+            } else if (hitRange <= 8) {
               this.props.updateScore('good');
               pulseColor = 'good';
               collisionNote.classList.add('hit-note');
-            } else {
+            } else if (hitRange > 8){
               this.props.updateScore('miss');
               pulseColor = 'miss';
               collisionNote.classList.add('missed-note');
@@ -92,10 +92,22 @@ export class Track extends React.Component {
     if (noteSpawnTimes) {
       noteSpawnTimes.forEach((note, index) => {
         if (currentFrame < note.startFrame || currentFrame > note.endFrame) {
+          if (this.activeNotes.indexOf(note.hitTime) != -1) {
+            // if we've moved outside of the range of the note's existence, remove
+            // the note from the active notes array
+            this.activeNotes.splice(this.activeNotes.indexOf(note.hitTime), 1);
+          }
           return;
         }
+        if (this.activeNotes.indexOf(note.hitTime) == -1) {
+          this.activeNotes.push(note.hitTime);
+        }
         const offsetTop = note.positions[currentFrame] + NOTE_CONTAINER_MARGIN;
-        const pastHitNote = offsetTop >= 500;
+        const pastHitNote = currentFrame >= note.endFrame - 10;
+        // if we moved past the hit note location, make sure we remove it from our active notes
+        if (pastHitNote && this.activeNotes.indexOf(note.hitTime) == -1) {
+          this.activeNotes.splice(this.activeNotes.indexOf(note.hitTime), 1);
+        }
         const noteElement = (
           <Note
             key={'track-' + this.props.trackID + '-note-' + index}

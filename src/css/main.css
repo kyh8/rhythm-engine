@@ -18,7 +18,7 @@ body {
 }
 
 audio {
-  width: 500px;
+  width: 900px;
   margin-top: 20px;
 }
 
@@ -133,8 +133,8 @@ audio {
   width: 30px;
   height: 30px;
   border-radius: 50%;
-  border: 1px solid white;
-  box-shadow: 0 0 2px white;
+  border: 1px solid transparent;
+  box-shadow: 0 0 4px white;
   margin: 30px 0;
 }
 
@@ -247,65 +247,65 @@ audio {
   }
 }
 
-.track-1 {
+.track-0 {
   border-left: 3px solid;
   border-right: 3px solid;
   border-color: #00B300;
+}
+
+.track-1 {
+  border-left: 3px solid;
+  border-right: 3px solid;
+  border-color: #FF4D4D;
 }
 
 .track-2 {
   border-left: 3px solid;
   border-right: 3px solid;
-  border-color: #FF4D4D;
+  border-color: #cccc22;
 }
 
 .track-3 {
   border-left: 3px solid;
   border-right: 3px solid;
-  border-color: #cccc22;
-}
-
-.track-4 {
-  border-left: 3px solid;
-  border-right: 3px solid;
   border-color: #0080FF;
 }
 
-.track-1 .note {
+.track-0 .note {
   background-color: #00B300; /* light-green */
 }
 
-.track-2 .note {
+.track-1 .note {
   background-color: #FF4D4D; /* light-red */
 }
 
-.track-3 .note {
+.track-2 .note {
   background-color: #cccc22; /* yellow */
 }
 
-.track-4 .note {
+.track-3 .note {
   background-color: #0080FF; /* blue */
 }
 
-.track-1 .active-key.hit-note-location {
+.track-0 .active-key.hit-note-location {
   box-shadow: 0 0 8px #00B300;
   border-color: #00B300;
   /* rgba(0,179,0,0.5) */
 }
 
-.track-2 .active-key.hit-note-location {
+.track-1 .active-key.hit-note-location {
   box-shadow: 0 0 8px #FF4D4D;
   border-color: #FF4D4D;
   /* rgba(255,77,77,0.5) */
 }
 
-.track-3 .active-key.hit-note-location {
+.track-2 .active-key.hit-note-location {
   box-shadow: 0 0 8px #cccc22;
   border-color: #cccc22;
   /* rgba(204,204,34,0.5) */
 }
 
-.track-4 .active-key.hit-note-location {
+.track-3 .active-key.hit-note-location {
   box-shadow: 0 0 8px #0080FF;
   border-color: #0080FF;
   /* rgba(0,128,255,0.5) */

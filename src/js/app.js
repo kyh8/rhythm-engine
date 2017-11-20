@@ -2,11 +2,27 @@ const React = require('react');
 const Track = require('./Track');
 const Util = require('./Util');
 
-const SONGS = {
-  'Gamers! by Hisako Kanemoto': 'src/assets/gamers.mp3',
-  'Hikaru Nara by Goose House': 'src/assets/your_lie_in_april_op.mp3',
-  'Shelter by Porter Robinson': 'src/assets/shelter.mp3',
-}
+const GAMERS = require('../sheetmusic/gamers.json');
+const SHELTER = require('../sheetmusic/shelter.json');
+const HIKARUNARA = require('../sheetmusic/hikarunara.json');
+
+const SONGS = [
+  {
+    songName: 'Gamers! by Hisako Kanemoto',
+    audioFile: 'src/assets/gamers.mp3',
+    sheetMusic: GAMERS,
+  },
+  {
+    songName: 'Hikaru Nara by Goose House',
+    audioFile: 'src/assets/your_lie_in_april_op.mp3',
+    sheetMusic: HIKARUNARA,
+  },
+  {
+    songName: 'Shelter by Porter Robinson',
+    audioFile: 'src/assets/shelter.mp3',
+    sheetMusic: SHELTER,
+  },
+];
 
 const MS_PER_SEC = 1000;
 const FRAME_RATE = MS_PER_SEC / 60;
@@ -16,27 +32,24 @@ const NOTE_HEIGHT = 26;
 const NOTE_END_LOCATION = 540;
 
 const KEYMAP = {
-  74: 1,
-  75: 2,
-  76: 3,
-  186: 4,
-  65: 1,
-  83: 2,
-  68: 3,
-  70: 4,
+  74: 0,
+  75: 1,
+  76: 2,
+  186: 3,
+  65: 0,
+  83: 1,
+  68: 2,
+  70: 3,
 };
 
 export class App extends React.Component {
   constructor(props) {
     super(props);
 
-    let songLibrary = Object.keys(SONGS);
-
     this.state = {
-      currentSong: SONGS[songLibrary[0]],
+      currentSongIndex: 0,
       songElement: null,
       currentSongTime: 0,
-      currentSongName: songLibrary[0],
       currentSongDuration: 0,
       currentFrame: 0,
       activeKeys: [],
@@ -48,6 +61,7 @@ export class App extends React.Component {
       },
       lastRender: 0,
       songDelay: 0,
+      registeredFrets: {},
     }
   }
 
@@ -78,7 +92,7 @@ export class App extends React.Component {
 
     window.onkeydown = (e) => {
       let key = e.keyCode ? e.keyCode : e.which;
-      if (KEYMAP[key] && this.state.activeKeys.indexOf(KEYMAP[key]) === -1) {
+      if (KEYMAP[key] !== undefined && this.state.activeKeys.indexOf(KEYMAP[key]) === -1) {
         let newActiveKeys = this.state.activeKeys;
         newActiveKeys.push(KEYMAP[key]);
         this.setState({
@@ -89,7 +103,7 @@ export class App extends React.Component {
 
     window.onkeyup = (e) => {
       let key = e.keyCode ? e.keyCode : e.which;
-      if (KEYMAP[key] && this.state.activeKeys.indexOf(KEYMAP[key]) !== -1) {
+      if (KEYMAP[key] !== undefined && this.state.activeKeys.indexOf(KEYMAP[key]) !== -1) {
         let newActiveKeys = this.state.activeKeys;
         newActiveKeys.splice(newActiveKeys.indexOf(KEYMAP[key]), 1);
         this.setState({
@@ -122,26 +136,55 @@ export class App extends React.Component {
     }
   }
 
+  registerFret(trackID, frame) {
+    let registeredFrets = this.state.registeredFrets;
+    if (!registeredFrets[frame]) {
+      registeredFrets[frame] = [0, 0, 0, 0];
+    }
+    registeredFrets[frame][trackID] = 1;
+    this.setState({
+      registeredFrets: registeredFrets,
+    });
+  }
+
+  printRegisteredFrets() {
+    console.log('registered frets', this.state.registeredFrets);
+  }
+
+  clearRegisteredFrets() {
+    console.log('cleared');;
+    this.setState({
+      registeredFrets: {},
+    });
+  }
+
   mapFrames() {
     // map timings to drop/spawn times
-    const noteHitTimes = {
-      1: [30,               161, 199, 238,            310,  407,            468,                        635,            836,],
-      2: [48, 101,           168, 208, 247,           319,  397,  428,  448,478,        544,                794,  815,  836,],
-      3: [68, 86, 121, 140, 178, 214, 254,    284,    331,  385,  437,      487,  503,  523, 566,           794,  815,],
-      4: [77,     132,                      276, 291, 359,  378,                  511,                  715],
-    };
-    let earliestFrame = 0;
-    let noteMap = {}
-    // if note hits bottom at time t, must spawn at t - (distance / TRAVEL_RATE)
-    for (let track in noteHitTimes) {
-      const noteHitLocation = document.getElementById(
-        'hit-note-location-' + track
-      );
+    const sheetMusic = SONGS[this.state.currentSongIndex].sheetMusic;
 
-      let spawnTimes = noteHitTimes[track];
-      let trackPositionings = [];
-      spawnTimes.forEach((noteSpawnTime) => {
-        let initialTime = Math.floor(noteSpawnTime -
+    let earliestFrame = 0;
+    let noteMap = {
+      0: [],
+      1: [],
+      2: [],
+      3: [],
+    };
+
+    for (let noteHitTime in sheetMusic) {
+      let tracks = sheetMusic[noteHitTime].map((isHit, index) => {
+        if (isHit == 1) {
+          return index;
+        }
+      }).filter((track) => {
+        return track !== undefined;
+      });
+      tracks.forEach((track) => {
+        const noteHitLocation = document.getElementById(
+          'hit-note-location-' + track
+        );
+
+        let trackPositionings = noteMap[track];
+        let initialTime = Math.floor(noteHitTime -
           (noteHitLocation.offsetTop - NOTE_START_LOCATION - NOTE_HEIGHT) / NOTE_TRAVEL_RATE);
         let endTime = Math.ceil(initialTime +
           (NOTE_END_LOCATION - NOTE_START_LOCATION) / NOTE_TRAVEL_RATE);
@@ -159,13 +202,14 @@ export class App extends React.Component {
         let note = {
           startFrame: initialTime,
           endFrame: endTime,
+          hitTime: noteHitTime,
           positions: notePositionings,
         }
         trackPositionings.push(note);
+        noteMap[track] = trackPositionings;
       });
-      noteMap[track] = trackPositionings;
     }
-    console.log('notemap', noteMap);
+    console.log('sheet music', noteMap);
 
     this.setState({
       noteMap: noteMap,
@@ -182,7 +226,7 @@ export class App extends React.Component {
 
   renderTracks() {
     let tracks = [];
-    for(let i = 1; i < 5; i++) {
+    for(let i = 0; i < 4; i++) {
       tracks.push(
         <Track
           key = {'track-' + i}
@@ -190,24 +234,23 @@ export class App extends React.Component {
           trackID = {i}
           currentFrame = {this.state.currentFrame}
           spawnTimes = {this.state.noteMap[i]}
-          updateScore = {this.updateScore.bind(this)}/>
+          updateScore = {this.updateScore.bind(this)}
+          registerFret = {this.registerFret.bind(this)}/>
       );
     }
     return tracks;
   }
 
   _setPreviousFrame() {
-    console.log('prev')
     this.setState({
       currentFrame: this.state.currentFrame - 1,
-    }, () => {console.log(this.state.currentFrame)});
+    });
   }
 
   _setNextFrame() {
-    console.log('next');
     this.setState({
       currentFrame: this.state.currentFrame + 1,
-    }, () => {console.log(this.state.currentFrame)});
+    });
   }
 
   _restartGame() {
@@ -248,7 +291,7 @@ export class App extends React.Component {
             </div>
           </div>
           <div className='now-playing-song-label'>
-            {this.state.currentSongName.toUpperCase()}
+            {SONGS[this.state.currentSongIndex].songName.toUpperCase()}
           </div>
         </div>
         <div className='game-content-container'>
@@ -270,8 +313,8 @@ export class App extends React.Component {
             <div className='score'>{this.state.scores.miss}</div>
           </div>
         </div>
-        <audio id={'now-playing-song'}>
-          <source src={this.state.currentSong} type="audio/mpeg"/>
+        <audio controls id={'now-playing-song'}>
+          <source src={SONGS[this.state.currentSongIndex].audioFile} type="audio/mpeg"/>
         </audio>
         <div className='buttons'>
           <div className='button' onClick={this._setPreviousFrame.bind(this)}>
@@ -279,6 +322,12 @@ export class App extends React.Component {
           </div>
           <div className='button' onClick={this._setNextFrame.bind(this)}>
             Next
+          </div>
+          <div className='button' onClick={this.printRegisteredFrets.bind(this)}>
+            Print
+          </div>
+          <div className='button' onClick={this.clearRegisteredFrets.bind(this)}>
+            Clear
           </div>
         </div>
         <div className='menu-tray'>
