@@ -1,3 +1,4 @@
+const LevelSelector = require('./LevelSelector');
 const React = require('react');
 const Track = require('./Track');
 const Util = require('./Util');
@@ -8,19 +9,31 @@ const HIKARUNARA = require('../sheetmusic/hikarunara.json');
 
 const SONGS = [
   {
-    songName: 'Gamers! by Hisako Kanemoto',
+    songName: 'Gamers!',
+    songArtist: 'Hisako Kanemoto',
     audioFile: 'src/assets/gamers.mp3',
     sheetMusic: GAMERS,
+    albumArtwork: 'src/assets/gamers.png',
+    difficulty: 'Hard',
+    songGenre: 'Anime',
   },
   {
-    songName: 'Hikaru Nara by Goose House',
+    songName: 'Hikaru Nara',
+    songArtist: 'Goose House',
     audioFile: 'src/assets/your_lie_in_april_op.mp3',
     sheetMusic: HIKARUNARA,
+    albumArtwork: 'src/assets/shigatsu.png',
+    difficulty: 'Easy',
+    songGenre: 'Anime',
   },
   {
-    songName: 'Shelter by Porter Robinson',
+    songName: 'Shelter',
+    songArtist: 'Porter Robinson',
     audioFile: 'src/assets/shelter.mp3',
     sheetMusic: SHELTER,
+    albumArtwork: 'src/assets/shelter.png',
+    difficulty: 'Medium',
+    songGenre: 'Pop',
   },
 ];
 
@@ -47,7 +60,7 @@ export class App extends React.Component {
     super(props);
 
     this.state = {
-      currentSongIndex: 0,
+      currentSongIndex: -1,
       songElement: null,
       currentSongTime: 0,
       currentSongDuration: 0,
@@ -62,25 +75,15 @@ export class App extends React.Component {
       lastRender: 0,
       songDelay: 0,
       registeredFrets: {},
+      isLevelSelected: false,
     }
   }
 
   componentDidMount() {
-    let song = document.getElementById('now-playing-song');
-    song.addEventListener('loadedmetadata', (e) => {
-      this.setState({
-        songElement: song,
-        currentSongTime: Math.floor(song.currentTime),
-        currentSongDuration: Math.floor(song.duration),
-      }, () => {
-        this.mapFrames();
-        song.play();
-
-        window.requestAnimationFrame(this.gameLoop.bind(this));
-      });
-    });
-
     window.onkeypress = (e) => {
+      if (this.state.currentSongIndex == -1) {
+        return;
+      }
       let key = e.keyCode ? e.keyCode : e.which;
       if (key === 32) {
         this._pauseGame();
@@ -91,6 +94,9 @@ export class App extends React.Component {
     }
 
     window.onkeydown = (e) => {
+      if (this.state.currentSongIndex == -1) {
+        return;
+      }
       let key = e.keyCode ? e.keyCode : e.which;
       if (KEYMAP[key] !== undefined && this.state.activeKeys.indexOf(KEYMAP[key]) === -1) {
         let newActiveKeys = this.state.activeKeys;
@@ -102,6 +108,9 @@ export class App extends React.Component {
     }
 
     window.onkeyup = (e) => {
+      if (this.state.currentSongIndex == -1) {
+        return;
+      }
       let key = e.keyCode ? e.keyCode : e.which;
       if (KEYMAP[key] !== undefined && this.state.activeKeys.indexOf(KEYMAP[key]) !== -1) {
         let newActiveKeys = this.state.activeKeys;
@@ -110,6 +119,27 @@ export class App extends React.Component {
           activeKeys: newActiveKeys,
         });
       }
+    }
+  }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.currentSongIndex > -1 && prevState.currentSongIndex == -1) {
+      let song = document.getElementById('now-playing-song');
+      if (!song) {
+        return;
+      }
+      song.addEventListener('loadedmetadata', (e) => {
+        this.setState({
+          songElement: song,
+          currentSongTime: Math.floor(song.currentTime),
+          currentSongDuration: Math.floor(song.duration),
+        }, () => {
+          this.mapFrames();
+          song.play();
+
+          window.requestAnimationFrame(this.gameLoop.bind(this));
+        });
+      });
     }
   }
 
@@ -246,6 +276,13 @@ export class App extends React.Component {
     return tracks;
   }
 
+  _selectLevel(index) {
+    this.setState({
+      currentSongIndex: index,
+      isLevelSelected: true,
+    });
+  }
+
   _setPreviousFrame() {
     this.setState({
       currentFrame: this.state.currentFrame - 1,
@@ -285,74 +322,91 @@ export class App extends React.Component {
 
   render() {
     return (
-      <div className="game-container">
-        <div className='now-playing-song-name'>
-          <div className='now-playing-label'>
-            <div>
-              <i className="fa fa-play-circle" aria-hidden="true"/>
+      <div className="content-container">
+        {
+          this.state.isLevelSelected
+          ? (
+            <div className='game-container'>
+              <div className='now-playing-song-name'>
+                <div className='now-playing-label'>
+                  <div>
+                    <i className="fa fa-play-circle" aria-hidden="true"/>
+                  </div>
+                  <div>
+                    {'Now Playing'}
+                  </div>
+                </div>
+                <div className='now-playing-song-label'>
+                  {
+                    SONGS[this.state.currentSongIndex].songName.toUpperCase()
+                    + ' BY '
+                    + SONGS[this.state.currentSongIndex].songArtist.toUpperCase()
+                  }
+                </div>
+              </div>
+              <div className='game-content-container'>
+                <div className='game-editor'>
+                  {this.renderTracks()}
+                </div>
+              </div>
+              <div className='scores'>
+                <div className='scoreBanner perfect-notes'>
+                  <div className='score-banner-label'>PERFECT</div>
+                  <div className='score'>{this.state.scores.perfect}</div>
+                </div>
+                <div className='scoreBanner good-notes'>
+                  <div className='score-banner-label'>GOOD</div>
+                  <div className='score'>{this.state.scores.good}</div>
+                </div>
+                <div className='scoreBanner missed-notes'>
+                  <div className='score-banner-label'>MISSED</div>
+                  <div className='score'>{this.state.scores.miss}</div>
+                </div>
+              </div>
+              <audio controls id={'now-playing-song'}>
+                <source src={SONGS[this.state.currentSongIndex].audioFile} type="audio/mpeg"/>
+              </audio>
+              <div className='buttons'>
+                <div className='button' onClick={this._setPreviousFrame.bind(this)}>
+                  Prev
+                </div>
+                <div className='button' onClick={this._setNextFrame.bind(this)}>
+                  Next
+                </div>
+                <div className='button' onClick={this.printRegisteredFrets.bind(this)}>
+                  Print
+                </div>
+                <div className='button' onClick={this.clearRegisteredFrets.bind(this)}>
+                  Clear
+                </div>
+              </div>
+              <div className='menu-tray'>
+                <div className='menu-item' onClick={this._restartGame.bind(this)}>
+                  <i className="fa fa-reply" aria-hidden="true"/>
+                </div>
+                <div className='menu-item' onClick={this._pauseGame.bind(this)}>
+                  <i className={
+                    this.state.songElement && this.state.songElement.paused
+                    ? "fa fa-play"
+                    : "fa fa-pause"
+                  } aria-hidden="true"/>
+                </div>
+                <div className='menu-item'>
+                  <i className="fa fa-info-circle" aria-hidden="true"/>
+                </div>
+              </div>
+              <div className='frame-count'>
+                {'Frame: ' + this.state.currentFrame}
+              </div>
             </div>
-            <div>
-              {'Now Playing'}
+          ) : (
+            <div className='level-selector-container'>
+              <LevelSelector
+                songLibrary={SONGS}
+                selectLevel={this._selectLevel.bind(this)}/>
             </div>
-          </div>
-          <div className='now-playing-song-label'>
-            {SONGS[this.state.currentSongIndex].songName.toUpperCase()}
-          </div>
-        </div>
-        <div className='game-content-container'>
-          <div className='game-editor'>
-            {this.renderTracks()}
-          </div>
-        </div>
-        <div className='scores'>
-          <div className='scoreBanner perfect-notes'>
-            <div className='score-banner-label'>PERFECT</div>
-            <div className='score'>{this.state.scores.perfect}</div>
-          </div>
-          <div className='scoreBanner good-notes'>
-            <div className='score-banner-label'>GOOD</div>
-            <div className='score'>{this.state.scores.good}</div>
-          </div>
-          <div className='scoreBanner missed-notes'>
-            <div className='score-banner-label'>MISSED</div>
-            <div className='score'>{this.state.scores.miss}</div>
-          </div>
-        </div>
-        <audio controls id={'now-playing-song'}>
-          <source src={SONGS[this.state.currentSongIndex].audioFile} type="audio/mpeg"/>
-        </audio>
-        <div className='buttons'>
-          <div className='button' onClick={this._setPreviousFrame.bind(this)}>
-            Prev
-          </div>
-          <div className='button' onClick={this._setNextFrame.bind(this)}>
-            Next
-          </div>
-          <div className='button' onClick={this.printRegisteredFrets.bind(this)}>
-            Print
-          </div>
-          <div className='button' onClick={this.clearRegisteredFrets.bind(this)}>
-            Clear
-          </div>
-        </div>
-        <div className='menu-tray'>
-          <div className='menu-item' onClick={this._restartGame.bind(this)}>
-            <i className="fa fa-reply" aria-hidden="true"/>
-          </div>
-          <div className='menu-item' onClick={this._pauseGame.bind(this)}>
-            <i className={
-              this.state.songElement && this.state.songElement.paused
-              ? "fa fa-play"
-              : "fa fa-pause"
-            } aria-hidden="true"/>
-          </div>
-          <div className='menu-item'>
-            <i className="fa fa-info-circle" aria-hidden="true"/>
-          </div>
-        </div>
-        <div className='frame-count'>
-          {'Frame: ' + this.state.currentFrame}
-        </div>
+          )
+        }
       </div>
     );
   }

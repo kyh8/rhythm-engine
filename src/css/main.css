@@ -22,6 +22,15 @@ audio {
   margin-top: 20px;
 }
 
+.content-container {
+  width: 100%;
+  background-color: rgba(0,0,0,0.7);
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
 .game-container {
   display: flex;
   align-items: center;
@@ -29,7 +38,6 @@ audio {
   flex-direction: column;
   width: 100%;
   height: 100%;
-  background-color: rgba(0,0,0,0.7);
 }
 
 .now-playing-song-name {
@@ -420,4 +428,216 @@ audio {
 .menu-item:hover {
   text-shadow: 0 0 4px black;
   color: lightgray;
+}
+
+.level-selector-container {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 100%;
+  height: 100%;
+}
+
+.level-selector {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: flex-start;
+  width: 420px;
+  height: 100%;
+  background-color: rgba(0,0,0,0.5);
+}
+
+.level-selector-panels {
+  height: 100%;
+  width: 100%;
+  display: flex;
+  justify-content: flex-start;
+  align-items: flex-start;
+}
+
+.level:first-child {
+  margin-top: 0;
+}
+
+.level {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  background-color: rgba(0, 0, 0, 0.5);
+  width: 420px;
+  height: 100px;
+  cursor: pointer;
+}
+
+.level,
+.level-song-name,
+.level-song-artist,
+.level-album-artwork,
+.level-album-artwork img {
+  transition: 0.4s all ease;
+}
+
+.level.hovered {
+  width: 420px;
+  height: 150px;
+  background-color: white;
+}
+
+.level.selected {
+  background-color: rgba(77,162,255,0.8);
+}
+
+.level.hovered .level-album-artwork {
+  width: 150px;
+  height: 150px;
+}
+
+.level.hovered .level-song-name {
+  color: black;
+  font-size: 40px;
+}
+
+.level.hovered .level-song-artist {
+  font-size: 20px;
+}
+
+.level-album-artwork {
+  width: 100px;
+  height: 100px;
+  border-right: 1px solid white;
+}
+
+.level-album-artwork img {
+  width: 100%;
+  height: 100%;
+}
+
+.level-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-start;
+  margin-left: 12px;
+}
+
+.level-song-name {
+  color: white;
+  font-size: 32px;
+}
+
+.level-song-artist {
+  font-size: 14px;
+  color: gray;
+}
+
+.level.selected .level-song-artist {
+  color: white;
+}
+
+.level.selected .level-song-name {
+  color: white;
+}
+
+.level-selector-info-panel,
+.empty-level-selector-info-panel {
+  flex-grow: 1;
+  height: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  background-color: rgba(255,255,255,0.9);
+  min-width: 480px;
+}
+
+.empty-level-selector-info-panel {
+  background-color: gray;
+}
+
+.unselected-level-text {
+  font-size: 42px;
+  color: lightgray;
+  text-shadow: 0 0 2px black;
+}
+
+.selected-level-album-artwork,
+.selected-level-album-artwork img {
+  width: 360px;
+  height: 360px;
+}
+
+.selected-level-album-artwork {
+  padding: 10px;
+  background-color: rgba(0,0,0,0.4);
+}
+
+.selected-level-song-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+  border-radius: 10px;
+  box-shadow: 0 0 2px black;
+}
+
+.selected-level-song-name,
+.selected-level-song-artist {
+  font-size: 24px;
+  padding: 6px 16px;
+}
+
+.selected-level-song-name {
+  background-color: white;
+  border-top-left-radius: 10px;
+  border-bottom-left-radius: 10px;
+}
+
+.selected-level-song-artist {
+  color: white;
+  background-color: rgba(0,0,0,0.7);
+  border-top-right-radius: 10px;
+  border-bottom-right-radius: 10px;
+}
+
+.selected-level-info {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.selected-level-info div {
+  margin-left: 10px;
+  font-size: 14px;
+}
+
+.selected-level-info div:first-child {
+  margin-left: 0;
+}
+
+.divider.divider {
+  font-size: 36px;
+  color: gray;
+}
+
+.selected-level-buttons {
+  margin-top: 20px;
+}
+
+.selected-level-play-button {
+  width: 80px;
+  height: 80px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 64px;
+  cursor: pointer;
+  transition: 0.3s all ease;
+}
+
+.selected-level-play-button:hover {
+  font-size: 76px;
+  color: red;
 }
