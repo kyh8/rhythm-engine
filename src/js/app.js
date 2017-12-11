@@ -81,6 +81,7 @@ export class App extends React.Component {
       countdown: 3,
       showCountdown: false,
       initialFrames: 0,
+      editorMode: false,
     }
   }
 
@@ -90,7 +91,7 @@ export class App extends React.Component {
         return;
       }
       let key = e.keyCode ? e.keyCode : e.which;
-      if (key === 32) {
+      if (key === 32 && this.state.editorMode) {
         this._pauseGame();
       }
       if (key === 114) {
@@ -127,6 +128,7 @@ export class App extends React.Component {
     }
 
     const song = document.getElementById('now-playing-song');
+    song.controls = this.state.editorMode;
     // const song = new Audio(SONGS[this.state.currentSongIndex].audioFile);
     if (!song) {
       return;
@@ -427,38 +429,43 @@ export class App extends React.Component {
                   <div className='score'>{this.state.scores.miss}</div>
                 </div>
               </div>
-              <audio controls id={'now-playing-song'}>
+              <audio id={'now-playing-song'}>
                 <source src={SONGS[this.state.currentSongIndex].audioFile} type="audio/mpeg"/>
               </audio>
-              <div className='buttons'>
-                <div className='button' onClick={this._setPreviousFrame.bind(this)}>
-                  Prev
-                </div>
-                <div className='button' onClick={this._setNextFrame.bind(this)}>
-                  Next
-                </div>
-                <div className='button' onClick={this.printRegisteredFrets.bind(this)}>
-                  Print
-                </div>
-                <div className='button' onClick={this.clearRegisteredFrets.bind(this)}>
-                  Clear
-                </div>
-              </div>
-              <div className='menu-tray'>
-                <div className='menu-item' onClick={this._restartGame.bind(this)}>
-                  <i className="fa fa-reply" aria-hidden="true"/>
-                </div>
-                <div className='menu-item' onClick={this._pauseGame.bind(this)}>
-                  <i className={
-                    this.state.songElement && this.state.songElement.paused
-                    ? "fa fa-play"
-                    : "fa fa-pause"
-                  } aria-hidden="true"/>
-                </div>
-                <div className='menu-item'>
-                  <i className="fa fa-info-circle" aria-hidden="true"/>
-                </div>
-              </div>
+              {
+                this.state.editorMode ? (
+                  <div className='buttons'>
+                    <div className='button' onClick={this._setPreviousFrame.bind(this)}>
+                      Prev
+                    </div>
+                    <div className='button' onClick={this._setNextFrame.bind(this)}>
+                      Next
+                    </div>
+                    <div className='button' onClick={this.printRegisteredFrets.bind(this)}>
+                      Print
+                    </div>
+                    <div className='button' onClick={this.clearRegisteredFrets.bind(this)}>
+                      Clear
+                    </div>
+                  </div>
+                ) : null
+              }
+              {this.state.editorMode ? (
+                <div className='menu-tray'>
+                  <div className='menu-item' onClick={this._restartGame.bind(this)}>
+                    <i className="fa fa-reply" aria-hidden="true"/>
+                  </div>
+                  <div className='menu-item' onClick={this._pauseGame.bind(this)}>
+                    <i className={
+                      this.state.songElement && this.state.songElement.paused
+                      ? "fa fa-play"
+                      : "fa fa-pause"
+                    } aria-hidden="true"/>
+                  </div>
+                  <div className='menu-item'>
+                    <i className="fa fa-info-circle" aria-hidden="true"/>
+                  </div>
+                </div>): null}
               <div className='frame-count'>
                 {'Frame: ' + this.state.currentFrame}
               </div>
