@@ -1,6 +1,6 @@
 const React = require('react');
 
-const THROTTLE_TIMER = 500;
+const THROTTLE_TIMER = 300;
 
 export class Level extends React.Component {
   constructor(props) {

@@ -20321,7 +20321,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var React = require('react');
 
-var THROTTLE_TIMER = 500;
+var THROTTLE_TIMER = 300;
 
 var Level = exports.Level = function (_React$Component) {
   _inherits(Level, _React$Component);
@@ -20656,6 +20656,7 @@ var React = require('react');
 
 var NOTE_HEIGHT = 30;
 var NOTE_CONTAINER_MARGIN = 30;
+var INITIAL_DELAY = 200;
 
 var Track = exports.Track = function (_React$Component) {
   _inherits(Track, _React$Component);
@@ -20675,7 +20676,7 @@ var Track = exports.Track = function (_React$Component) {
   }, {
     key: 'shouldComponentUpdate',
     value: function shouldComponentUpdate(nextProps, nextState) {
-      return nextProps.isActive !== this.props.isActive || nextProps.currentFrame !== this.props.currentFrame;
+      return nextProps.isActive !== this.props.isActive || nextProps.currentFrame !== this.props.currentFrame || nextProps.spawnTimes !== undefined && this.props.spawnTimes === undefined;
     }
   }, {
     key: 'componentWillUpdate',
@@ -20870,8 +20871,6 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 
-var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
-
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
 function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
@@ -20921,6 +20920,8 @@ var NOTE_TRAVEL_RATE = 4; // pixels per frame
 var NOTE_START_LOCATION = -130;
 var NOTE_HEIGHT = 26;
 var NOTE_END_LOCATION = 540;
+var INITIAL_DELAY = 200;
+var BUFFER_DELAY = 5;
 
 var KEYMAP = {
   74: 0,
@@ -20942,7 +20943,7 @@ var App = exports.App = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (App.__proto__ || Object.getPrototypeOf(App)).call(this, props));
 
     _this.state = {
-      currentSongIndex: -1,
+      currentSongIndex: 0,
       songElement: null,
       currentSongTime: 0,
       currentSongDuration: 0,
@@ -20957,7 +20958,10 @@ var App = exports.App = function (_React$Component) {
       lastRender: 0,
       songDelay: 0,
       registeredFrets: {},
-      isLevelSelected: false
+      isLevelSelected: true,
+      countdown: 3,
+      showCountdown: false,
+      initialFrames: 0
     };
     return _this;
   }
@@ -21007,37 +21011,71 @@ var App = exports.App = function (_React$Component) {
           });
         }
       };
-    }
-  }, {
-    key: 'componentDidUpdate',
-    value: function componentDidUpdate(prevProps, prevState) {
-      var _this3 = this;
 
-      if (this.state.currentSongIndex > -1 && prevState.currentSongIndex == -1) {
-        var _ret = function () {
-          var song = document.getElementById('now-playing-song');
-          if (!song) {
-            return {
-              v: void 0
-            };
-          }
-          song.addEventListener('loadedmetadata', function (e) {
-            _this3.setState({
-              songElement: song,
-              currentSongTime: Math.floor(song.currentTime),
-              currentSongDuration: Math.floor(song.duration)
-            }, function () {
-              _this3.mapFrames();
-              song.play();
-
-              window.requestAnimationFrame(_this3.gameLoop.bind(_this3));
-            });
-          });
-        }();
-
-        if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
+      var song = document.getElementById('now-playing-song');
+      // const song = new Audio(SONGS[this.state.currentSongIndex].audioFile);
+      if (!song) {
+        return;
       }
+      var transitionScreen = document.getElementById('transition-screen');
+      this.setState({
+        songElement: song,
+        currentSongTime: Math.floor(song.currentTime),
+        currentSongDuration: Math.floor(song.duration)
+      }, function () {
+        _this2.mapFrames();
+        // song.play();
+
+        window.requestAnimationFrame(_this2.gameLoop.bind(_this2));
+      });
     }
+    //
+    // componentDidUpdate(prevProps, prevState) {
+    //   if (this.state.currentSongIndex > -1 && prevState.currentSongIndex == -1) {
+    //     const song = new Audio(SONGS[this.state.currentSongIndex].audioFile);
+    //     if (!song) {
+    //       return;
+    //     }
+    //     let transitionScreen = document.getElementById('transition-screen');
+    //     song.addEventListener('loadedmetadata', (e) => {
+    //       this.setState({
+    //         songElement: song,
+    //         currentSongTime: Math.floor(song.currentTime),
+    //         currentSongDuration: Math.floor(song.duration),
+    //       }, () => {
+    //         this.mapFrames();
+    //         song.play();
+    //
+    //         window.requestAnimationFrame(this.gameLoop.bind(this));
+    //       });
+    //     });
+    //     let countdownInterval = setInterval(() => {
+    //       if (this.state.countdown == -1) {
+    //         clearInterval(countdownInterval);
+    //         this.setState({
+    //           showCountdown: false,
+    //         }, () => {
+    //           song.play();
+    //         });
+    //         return;
+    //       }
+    //       let countdownNum = document.createElement('div');
+    //       countdownNum.innerText =
+    //         this.state.countdown > 0
+    //         ? this.state.countdown
+    //         : 'Go!';
+    //       countdownNum.classList.add('countdown-number');
+    //       transitionScreen.appendChild(countdownNum);
+    //       countdownNum.addEventListener('animationend', (e) => {
+    //         transitionScreen.removeChild(countdownNum);
+    //       });
+    //       this.setState({
+    //         countdown: this.state.countdown - 1,
+    //       });
+    //     }, 1000);
+    //   }
+    // }
+
   }, {
     key: 'gameLoop',
     value: function gameLoop(timestamp) {
@@ -21052,12 +21090,20 @@ var App = exports.App = function (_React$Component) {
   }, {
     key: 'updateFrame',
     value: function updateFrame(progress) {
-      if (this.state.songElement && !this.state.songElement.paused) {
+      if (this.state.songElement) {
         var newTime = Math.floor(this.state.songElement.currentTime);
-        var newFrame = Math.floor(this.state.songElement.currentTime * MS_PER_SEC / FRAME_RATE);
+        var initialFrames = this.state.initialFrames;
+        if (this.state.initialFrames <= INITIAL_DELAY) {
+          initialFrames++;
+          if (this.state.initialFrames == INITIAL_DELAY - BUFFER_DELAY && this.state.songElement.currentTime == 0) {
+            this.state.songElement.play();
+          }
+        }
+        var newFrame = initialFrames + Math.floor(this.state.songElement.currentTime * MS_PER_SEC / FRAME_RATE);
         this.setState({
           currentSongTime: newTime,
-          currentFrame: newFrame
+          currentFrame: newFrame,
+          initialFrames: initialFrames
         });
       }
     }
@@ -21065,10 +21111,13 @@ var App = exports.App = function (_React$Component) {
     key: 'registerFret',
     value: function registerFret(trackID, frame) {
       var registeredFrets = this.state.registeredFrets;
-      if (!registeredFrets[frame]) {
-        registeredFrets[frame] = [0, 0, 0, 0];
+      if (frame - INITIAL_DELAY < 0) {
+        return;
       }
-      registeredFrets[frame][trackID] = 1;
+      if (!registeredFrets[frame - INITIAL_DELAY]) {
+        registeredFrets[frame - INITIAL_DELAY] = [0, 0, 0, 0];
+      }
+      registeredFrets[frame - INITIAL_DELAY][trackID] = 1;
       this.setState({
         registeredFrets: registeredFrets
       });
@@ -21086,7 +21135,7 @@ var App = exports.App = function (_React$Component) {
   }, {
     key: 'clearRegisteredFrets',
     value: function clearRegisteredFrets() {
-      console.log('cleared');;
+      console.log('cleared');
       this.setState({
         registeredFrets: {}
       });
@@ -21117,7 +21166,7 @@ var App = exports.App = function (_React$Component) {
           var noteHitLocation = document.getElementById('hit-note-location-' + track);
 
           var trackPositionings = noteMap[track];
-          var initialTime = Math.floor(noteHitTime - (noteHitLocation.offsetTop - NOTE_START_LOCATION - NOTE_HEIGHT) / NOTE_TRAVEL_RATE);
+          var initialTime = INITIAL_DELAY + Math.floor(noteHitTime - (noteHitLocation.offsetTop - NOTE_START_LOCATION - NOTE_HEIGHT) / NOTE_TRAVEL_RATE);
           var endTime = Math.ceil(initialTime + (NOTE_END_LOCATION - NOTE_START_LOCATION) / NOTE_TRAVEL_RATE);
           var notePositionings = {};
           var index = 0;
@@ -21133,7 +21182,7 @@ var App = exports.App = function (_React$Component) {
           var note = {
             startFrame: initialTime,
             endFrame: endTime,
-            hitTime: noteHitTime,
+            hitTime: parseInt(noteHitTime) + INITIAL_DELAY,
             positions: notePositionings
           };
           trackPositionings.push(note);
@@ -21171,7 +21220,8 @@ var App = exports.App = function (_React$Component) {
           currentFrame: this.state.currentFrame,
           spawnTimes: this.state.noteMap[i],
           updateScore: this.updateScore.bind(this),
-          registerFret: this.registerFret.bind(this) }));
+          registerFret: this.registerFret.bind(this),
+          intialDelay: INITIAL_DELAY }));
       }
       return tracks;
     }
@@ -21200,7 +21250,7 @@ var App = exports.App = function (_React$Component) {
   }, {
     key: '_restartGame',
     value: function _restartGame() {
-      var _this4 = this;
+      var _this3 = this;
 
       if (this.state.songElement) {
         this.state.songElement.currentTime = 0;
@@ -21211,7 +21261,7 @@ var App = exports.App = function (_React$Component) {
             'miss': 0
           }
         }, function () {
-          _this4.state.songElement.play();
+          _this3.state.songElement.play();
         });
       }
     }
@@ -21235,6 +21285,7 @@ var App = exports.App = function (_React$Component) {
         this.state.isLevelSelected ? React.createElement(
           'div',
           { className: 'game-container' },
+          this.state.showCountdown ? React.createElement('div', { id: 'transition-screen', className: 'transition-screen' }) : null,
           React.createElement(
             'div',
             { className: 'now-playing-song-name' },
@@ -21438,31 +21489,32 @@ module.exports={
   "794":  [0, 1, 1, 0],
   "815":  [0, 1, 1, 0],
   "836":  [1, 1, 0, 0],
-  "874":  [0, 1, 0, 0],
-  "899":  [0, 0, 1, 0],
-  "906":  [0, 1, 0, 0],
-  "915":  [0, 0, 1, 0],
-  "922":  [0, 1, 0, 0],
-  "939":  [1, 0, 0, 0],
-  "948":  [0, 1, 0, 0],
-  "962":  [0, 0, 1, 0],
+  "874":  [1, 0, 0, 0],
+  "892":  [0, 1, 0, 0],
+  "901":  [0, 0, 1, 0],
+  "910":  [0, 1, 0, 0],
+  "919":  [0, 0, 1, 0],
+  "928":  [0, 1, 0, 0],
+  "940":  [1, 0, 0, 0],
+  "951":  [0, 1, 0, 0],
+  "960":  [0, 0, 1, 0],
   "969":  [0, 1, 0, 0],
   "978":  [0, 0, 1, 0],
   "985":  [0, 1, 0, 0],
   "998":  [0, 0, 1, 0],
   "1007": [0, 0, 0, 1],
   "1025": [1, 0, 0, 0],
-  "1040": [0, 1, 0, 0],
-  "1048": [0, 0, 1, 0],
-  "1056": [0, 1, 0, 0],
-  "1066": [0, 0, 1, 0],
-  "1075": [0, 1, 0, 0],
-  "1090": [1, 0, 0, 0],
-  "1101": [0, 1, 0, 0],
+  "1043": [0, 1, 0, 0],
+  "1052": [0, 0, 1, 0],
+  "1061": [0, 1, 0, 0],
+  "1070": [0, 0, 1, 0],
+  "1079": [0, 1, 0, 0],
+  "1091": [1, 0, 0, 0],
+  "1102": [0, 1, 0, 0],
   "1111": [0, 0, 1, 0],
-  "1119": [0, 1, 0, 0],
+  "1120": [0, 1, 0, 0],
   "1130": [0, 0, 1, 0],
-  "1137": [0, 1, 0, 0],
+  "1139": [0, 1, 0, 0],
   "1149": [0, 0, 1, 0],
   "1160": [0, 0, 0, 1],
   "1183": [1, 0, 0, 0],
@@ -21470,7 +21522,7 @@ module.exports={
   "1210": [0, 0, 1, 0],
   "1219": [0, 1, 0, 0],
   "1228": [0, 0, 1, 0],
-  "1238": [0, 1, 0, 0],
+  "1237": [0, 1, 0, 0],
   "1249": [1, 0, 0, 0],
   "1260": [0, 1, 0, 0],
   "1273": [0, 0, 1, 0],
@@ -21479,17 +21531,95 @@ module.exports={
   "1298": [0, 1, 0, 0],
   "1308": [0, 0, 1, 0],
   "1319": [0, 0, 0, 1],
-
+  "1336": [0, 1, 0, 0],
+  "1374": [0, 0, 1, 0],
+  "1414": [0, 0, 0, 1],
+  "1457": [0, 0, 1, 0],
+  "1502": [0, 0, 1, 0],
+  "1522": [0, 1, 0, 0],
+  "1530": [0, 0, 1, 0],
+  "1549": [0, 0, 1, 0],
+  "1569": [0, 1, 0, 0],
+  "1579": [0, 0, 1, 0],
+  "1599": [0, 1, 0, 0],
+  "1607": [0, 0, 1, 0],
+  "1656": [0, 0, 1, 0],
+  "1679": [0, 1, 0, 0],
+  "1688": [0, 0, 1, 0],
+  "1707": [0, 0, 1, 0],
+  "1726": [0, 1, 0, 0],
+  "1737": [0, 0, 1, 0],
+  "1757": [0, 1, 0, 0],
+  "1766": [0, 0, 1, 0],
+  "1785": [1, 0, 0, 0],
+  "1795": [0, 1, 0, 0],
+  "1802": [0, 0, 1, 0],
+  "1811": [0, 0, 0, 1],
+  "1831": [0, 0, 1, 0],
+  "1839": [0, 0, 0, 1],
+  "1859": [0, 0, 0, 1],
+  "1879": [0, 0, 1, 0],
+  "1889": [0, 0, 0, 1],
+  "1910": [0, 0, 1, 0],
+  "1919": [0, 0, 0, 1],
+  "1966": [0, 0, 0, 1],
+  "1989": [0, 0, 1, 0],
+  "1997": [0, 0, 0, 1],
+  "2016": [0, 0, 0, 1],
+  "2038": [0, 0, 1, 0],
+  "2044": [0, 1, 0, 0],
+  "2055": [0, 0, 1, 0],
+  "2065": [0, 0, 0, 1],
+  "2074": [0, 0, 1, 0],
+  "2086": [0, 0, 0, 1],
+  "2116": [0, 1, 1, 0],
+  "2152": [1, 0, 0, 1],
+  "2194": [1, 0, 1, 0],
+  "2230": [0, 1, 0, 1],
+  "2277": [0, 1, 1, 0],
+  "2308": [1, 0, 0, 1],
+  "2353": [0, 1, 0, 1],
+  "2386": [1, 0, 1, 0],
+  "2402": [0, 0, 1, 0],
+  "2411": [0, 0, 0, 1],
+  "2420": [1, 0, 0, 0],
+  "2432": [0, 1, 0, 0],
+  "2468": [0, 1, 1, 0],
+  "2510": [1, 0, 0, 1],
+  "2541": [0, 1, 1, 0],
+  "2567": [0, 1, 0, 0],
+  "2576": [1, 0, 0, 0],
+  "2588": [0, 1, 0, 0],
+  "2606": [0, 0, 1, 0],
+  "2625": [0, 0, 0, 1],
+  "2643": [0, 1, 0, 0],
+  "2644": [0, 0, 1, 0],
+  "2663": [1, 0, 0, 0],
+  "2665": [0, 0, 0, 1],
+  "2685": [0, 1, 1, 0],
+  "2705": [1, 0, 0, 1],
 };
 
 },{}],185:[function(require,module,exports){
 module.exports={
-  
+  "18": [0, 1, 0, 0],
+  "30": [1, 0, 0, 0],
+  "38": [0, 1, 0, 0],
+  "50": [0, 0, 1, 0],
+  "72": [0, 1, 0, 0],
+  "83": [0, 0, 1, 0],
+  "94": [0, 0, 0, 1],
+  "116": [0, 0, 1, 0],
+  "128": [0, 1, 0, 0],
+  "138": [1, 0, 0, 0],
 }
 
 },{}],186:[function(require,module,exports){
-arguments[4][185][0].apply(exports,arguments)
-},{"dup":185}],187:[function(require,module,exports){
+module.exports={
+  
+}
+
+},{}],187:[function(require,module,exports){
 // shim for using process in browser
 
 var process = module.exports = {};

@@ -3,6 +3,7 @@ const React = require('react');
 
 const NOTE_HEIGHT = 30;
 const NOTE_CONTAINER_MARGIN = 30;
+const INITIAL_DELAY = 200;
 
 export class Track extends React.Component {
   constructor(props) {
@@ -14,7 +15,11 @@ export class Track extends React.Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    return nextProps.isActive !== this.props.isActive || nextProps.currentFrame !== this.props.currentFrame;
+    return (
+      nextProps.isActive !== this.props.isActive
+      || nextProps.currentFrame !== this.props.currentFrame
+      || nextProps.spawnTimes !== undefined && this.props.spawnTimes === undefined
+    );
   }
 
   componentWillUpdate(nextProps, nextState) {

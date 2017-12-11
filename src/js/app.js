@@ -43,6 +43,8 @@ const NOTE_TRAVEL_RATE = 4; // pixels per frame
 const NOTE_START_LOCATION = -130;
 const NOTE_HEIGHT = 26;
 const NOTE_END_LOCATION = 540;
+const INITIAL_DELAY = 200;
+const BUFFER_DELAY = 5;
 
 const KEYMAP = {
   74: 0,
@@ -60,7 +62,7 @@ export class App extends React.Component {
     super(props);
 
     this.state = {
-      currentSongIndex: -1,
+      currentSongIndex: 0,
       songElement: null,
       currentSongTime: 0,
       currentSongDuration: 0,
@@ -75,7 +77,10 @@ export class App extends React.Component {
       lastRender: 0,
       songDelay: 0,
       registeredFrets: {},
-      isLevelSelected: false,
+      isLevelSelected: true,
+      countdown: 3,
+      showCountdown: false,
+      initialFrames: 0,
     }
   }
 
@@ -120,28 +125,70 @@ export class App extends React.Component {
         });
       }
     }
-  }
 
-  componentDidUpdate(prevProps, prevState) {
-    if (this.state.currentSongIndex > -1 && prevState.currentSongIndex == -1) {
-      let song = document.getElementById('now-playing-song');
-      if (!song) {
-        return;
-      }
-      song.addEventListener('loadedmetadata', (e) => {
-        this.setState({
-          songElement: song,
-          currentSongTime: Math.floor(song.currentTime),
-          currentSongDuration: Math.floor(song.duration),
-        }, () => {
-          this.mapFrames();
-          song.play();
-
-          window.requestAnimationFrame(this.gameLoop.bind(this));
-        });
-      });
+    const song = document.getElementById('now-playing-song');
+    // const song = new Audio(SONGS[this.state.currentSongIndex].audioFile);
+    if (!song) {
+      return;
     }
+    let transitionScreen = document.getElementById('transition-screen');
+    this.setState({
+      songElement: song,
+      currentSongTime: Math.floor(song.currentTime),
+      currentSongDuration: Math.floor(song.duration),
+    }, () => {
+      this.mapFrames();
+      // song.play();
+
+      window.requestAnimationFrame(this.gameLoop.bind(this));
+    });
   }
+  //
+  // componentDidUpdate(prevProps, prevState) {
+  //   if (this.state.currentSongIndex > -1 && prevState.currentSongIndex == -1) {
+  //     const song = new Audio(SONGS[this.state.currentSongIndex].audioFile);
+  //     if (!song) {
+  //       return;
+  //     }
+  //     let transitionScreen = document.getElementById('transition-screen');
+  //     song.addEventListener('loadedmetadata', (e) => {
+  //       this.setState({
+  //         songElement: song,
+  //         currentSongTime: Math.floor(song.currentTime),
+  //         currentSongDuration: Math.floor(song.duration),
+  //       }, () => {
+  //         this.mapFrames();
+  //         song.play();
+  //
+  //         window.requestAnimationFrame(this.gameLoop.bind(this));
+  //       });
+  //     });
+  //     let countdownInterval = setInterval(() => {
+  //       if (this.state.countdown == -1) {
+  //         clearInterval(countdownInterval);
+  //         this.setState({
+  //           showCountdown: false,
+  //         }, () => {
+  //           song.play();
+  //         });
+  //         return;
+  //       }
+  //       let countdownNum = document.createElement('div');
+  //       countdownNum.innerText =
+  //         this.state.countdown > 0
+  //         ? this.state.countdown
+  //         : 'Go!';
+  //       countdownNum.classList.add('countdown-number');
+  //       transitionScreen.appendChild(countdownNum);
+  //       countdownNum.addEventListener('animationend', (e) => {
+  //         transitionScreen.removeChild(countdownNum);
+  //       });
+  //       this.setState({
+  //         countdown: this.state.countdown - 1,
+  //       });
+  //     }, 1000);
+  //   }
+  // }
 
   gameLoop(timestamp) {
     let progress = timestamp - this.state.lastRender;
@@ -154,24 +201,35 @@ export class App extends React.Component {
   }
 
   updateFrame(progress) {
-    if (this.state.songElement && !this.state.songElement.paused) {
+    if (this.state.songElement) {
       const newTime = Math.floor(this.state.songElement.currentTime);
-      const newFrame = Math.floor((
+      let initialFrames = this.state.initialFrames;
+      if (this.state.initialFrames <= INITIAL_DELAY) {
+        initialFrames++;
+        if (this.state.initialFrames == INITIAL_DELAY - BUFFER_DELAY && this.state.songElement.currentTime == 0) {
+          this.state.songElement.play();
+        }
+      }
+      const newFrame = initialFrames + Math.floor((
         this.state.songElement.currentTime
       ) * MS_PER_SEC / FRAME_RATE);
       this.setState({
         currentSongTime: newTime,
         currentFrame: newFrame,
+        initialFrames: initialFrames,
       });
     }
   }
 
   registerFret(trackID, frame) {
     let registeredFrets = this.state.registeredFrets;
-    if (!registeredFrets[frame]) {
-      registeredFrets[frame] = [0, 0, 0, 0];
+    if (frame - INITIAL_DELAY < 0) {
+      return;
     }
-    registeredFrets[frame][trackID] = 1;
+    if (!registeredFrets[frame - INITIAL_DELAY]) {
+      registeredFrets[frame - INITIAL_DELAY] = [0, 0, 0, 0];
+    }
+    registeredFrets[frame - INITIAL_DELAY][trackID] = 1;
     this.setState({
       registeredFrets: registeredFrets,
     });
@@ -187,7 +245,7 @@ export class App extends React.Component {
   }
 
   clearRegisteredFrets() {
-    console.log('cleared');;
+    console.log('cleared');
     this.setState({
       registeredFrets: {},
     });
@@ -219,7 +277,7 @@ export class App extends React.Component {
         );
 
         let trackPositionings = noteMap[track];
-        let initialTime = Math.floor(noteHitTime -
+        let initialTime = INITIAL_DELAY + Math.floor(noteHitTime -
           (noteHitLocation.offsetTop - NOTE_START_LOCATION - NOTE_HEIGHT) / NOTE_TRAVEL_RATE);
         let endTime = Math.ceil(initialTime +
           (NOTE_END_LOCATION - NOTE_START_LOCATION) / NOTE_TRAVEL_RATE);
@@ -237,7 +295,7 @@ export class App extends React.Component {
         let note = {
           startFrame: initialTime,
           endFrame: endTime,
-          hitTime: noteHitTime,
+          hitTime: parseInt(noteHitTime) + INITIAL_DELAY,
           positions: notePositionings,
         }
         trackPositionings.push(note);
@@ -270,7 +328,8 @@ export class App extends React.Component {
           currentFrame = {this.state.currentFrame}
           spawnTimes = {this.state.noteMap[i]}
           updateScore = {this.updateScore.bind(this)}
-          registerFret = {this.registerFret.bind(this)}/>
+          registerFret = {this.registerFret.bind(this)}
+          intialDelay = {INITIAL_DELAY}/>
       );
     }
     return tracks;
@@ -327,6 +386,11 @@ export class App extends React.Component {
           this.state.isLevelSelected
           ? (
             <div className='game-container'>
+              {
+                this.state.showCountdown
+                ? <div id='transition-screen' className='transition-screen'/>
+                : null
+              }
               <div className='now-playing-song-name'>
                 <div className='now-playing-label'>
                   <div>
