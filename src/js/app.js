@@ -44,7 +44,7 @@ const NOTE_START_LOCATION = -130;
 const NOTE_HEIGHT = 26;
 const NOTE_END_LOCATION = 540;
 const INITIAL_DELAY = 200;
-const BUFFER_DELAY = 5;
+const BUFFER_DELAY = 6;
 
 const KEYMAP = {
   74: 0,
@@ -62,7 +62,7 @@ export class App extends React.Component {
     super(props);
 
     this.state = {
-      currentSongIndex: 0,
+      currentSongIndex: 1,
       songElement: null,
       currentSongTime: 0,
       currentSongDuration: 0,
@@ -81,7 +81,7 @@ export class App extends React.Component {
       countdown: 3,
       showCountdown: false,
       initialFrames: 0,
-      editorMode: false,
+      editorMode: true,
     }
   }
 
@@ -450,22 +450,25 @@ export class App extends React.Component {
                   </div>
                 ) : null
               }
-              {this.state.editorMode ? (
-                <div className='menu-tray'>
-                  <div className='menu-item' onClick={this._restartGame.bind(this)}>
-                    <i className="fa fa-reply" aria-hidden="true"/>
+              {
+                this.state.editorMode
+                ? (
+                  <div className='menu-tray'>
+                    <div className='menu-item' onClick={this._restartGame.bind(this)}>
+                      <i className="fa fa-reply" aria-hidden="true"/>
+                    </div>
+                    <div className='menu-item' onClick={this._pauseGame.bind(this)}>
+                      <i className={
+                        this.state.songElement && this.state.songElement.paused
+                        ? "fa fa-play"
+                        : "fa fa-pause"
+                      } aria-hidden="true"/>
+                    </div>
+                    <div className='menu-item'>
+                      <i className="fa fa-info-circle" aria-hidden="true"/>
+                    </div>
                   </div>
-                  <div className='menu-item' onClick={this._pauseGame.bind(this)}>
-                    <i className={
-                      this.state.songElement && this.state.songElement.paused
-                      ? "fa fa-play"
-                      : "fa fa-pause"
-                    } aria-hidden="true"/>
-                  </div>
-                  <div className='menu-item'>
-                    <i className="fa fa-info-circle" aria-hidden="true"/>
-                  </div>
-                </div>): null}
+                ): null}
               <div className='frame-count'>
                 {'Frame: ' + this.state.currentFrame}
               </div>
