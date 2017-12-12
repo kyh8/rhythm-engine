@@ -161,9 +161,11 @@ export class App extends React.Component {
       // SAMPLE CODE, get the top 3 scores and when done, print out the scores and add a new score
       this.getScoresFromDb('gamers', 3, (query) => {
         query.forEach((user) => {
-          console.log(user.data().username + " > " + user.data().score);
+          console.log(user.id + " > " + user.data().score);
         });
-        this.addScoreToDb('gamers', 'test', 100334345);
+        this.addScoreToDb('gamers', 'test', 100334345, () => {
+          console.log("Just added test -> 100334345 to the database");
+        });
       });
     });
   }
@@ -216,16 +218,14 @@ export class App extends React.Component {
 
   /**
    * Add a new score to the database given the songID, username, and new score.
+   * If the user already exists, his score will be overwritten.
    **/
-  addScoreToDb(songId, userName, score) {
+  addScoreToDb(songId, userName, score, callback) {
     const db = Firebase.firestore();
 
-    db.collection('songs').doc(songId).collection('scores').add({
-      username: userName,
+    db.collection('songs').doc(songId).collection('scores').doc(userName).set({
       score: score
-    }).then((documentRef) => {
-      console.log("Added document with ID: ", documentRef.id);
-    });
+    }).then(callback);
   }
 
   /**
@@ -234,7 +234,7 @@ export class App extends React.Component {
    *
    * The query snapshot is iterable of user documents, which are accessed as follows:
    *
-   *     user.data().username   >>   username for this score
+   *     user.id                >>   username for this score
    *     user.data().score      >>   the respective score
    **/
   getScoresFromDb(songId, nScores, callback) {
