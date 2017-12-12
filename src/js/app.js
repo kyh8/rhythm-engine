@@ -235,16 +235,12 @@ export class App extends React.Component {
 
   /**
    * Add a new score to the database given the songID, username, and new score.
-   * If the user already exists, his score will be overwritten.
    **/
   addScoreToDb(songId, userName, score, callback) {
     const db = Firebase.firestore();
 
-    // this.addScoreToDb('gamers', 'test', 100334345, (ref) => {
-    //   console.log(`Just added ${ref.id} to the database`);
-    // });
-
-    db.collection('songs').doc(songId).collection('scores').doc(userName).set({
+    db.collection('songs').doc(songId).collection('scores').add({
+      username: userName,
       score: score
     }).then(callback);
   }
@@ -255,7 +251,7 @@ export class App extends React.Component {
    *
    * The query snapshot is iterable of user documents, which are accessed as follows:
    *
-   *     user.id                >>   username for this score
+   *     user.data().username   >>   username for this score
    *     user.data().score      >>   the respective score
    **/
   getScoresFromDb(songId, nScores, callback) {
