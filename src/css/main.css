@@ -610,7 +610,8 @@ audio {
 
 .selected-level-info div {
   margin-left: 10px;
-  font-size: 14px;
+  font-size: 18px;
+  line-height: 18px;
 }
 
 .selected-level-info div:first-child {
@@ -633,17 +634,19 @@ audio {
   justify-content: center;
   align-items: center;
   font-size: 64px;
+  line-height: 80px;
   cursor: pointer;
   transition: 0.3s all ease;
 }
 
 .selected-level-play-button:hover {
-  font-size: 76px;
+  font-size: 72px;
   color: red;
 }
 
-.transition-screen {
-  background-color: rgba(0,0,0,0.5);
+.transition-screen,
+.end-game-screen-container {
+  background-color: rgba(0,0,0,0.7);
   width: 100%;
   height: 100%;
   position: absolute;
@@ -653,6 +656,36 @@ audio {
   display: flex;
   justify-content: center;
   align-items: center;
+  flex-direction: column;
+}
+
+.end-game-screen-container {
+  background-color: transparent;
+}
+
+.end-game-screen {
+  background-color: rgba(255,255,255,0.9);
+  width: 450px;
+  height: 200px;
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  position: relative;
+}
+
+.song-final-score-label {
+  font-size: 14px;
+}
+
+.song-final-score {
+  font-size: 72px;
+  color: black;
+}
+
+.high-score-name {
+  font-size: 24px;
 }
 
 .countdown-number {
@@ -663,7 +696,7 @@ audio {
 
 @keyframes countdown-flash {
   0% {
-    font-size: 120px;
+    font-size: 160px;
     opacity: 1;
   }
 
@@ -671,4 +704,160 @@ audio {
     font-size: 36px;
     opacity: 0;
   }
+}
+
+.transition-screen-countdown {
+  display: flex;
+  width: 270px;
+  height: 270px;
+  justify-content: center;
+  align-items: center;
+}
+
+.instruction-keys {
+  display: flex;
+}
+
+.instruction-key {
+  width: 40px;
+  height: 40px;
+  border-radius: 4px;
+  font-size: 12px;
+  margin-left: 66px;
+  background-color: rgba(255,255,255,0.8);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.instruction-key:first-child {
+  margin-left: 0;
+}
+
+.instruction-key.active {
+  color: white;
+}
+
+.instruction-key-0.active {
+  background-color: #00B300;
+}
+
+.instruction-key-1.active {
+  background-color: #FF4D4D;
+}
+
+.instruction-key-2.active {
+  background-color: #cccc22;
+}
+
+.instruction-key-3.active {
+  background-color: #0080FF;
+}
+
+.selected-level-high-scores {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  flex-direction: column;
+  margin-top: 20px;
+}
+
+.selected-level-high-scores-label {
+  color: green;
+  font-size: 24px;
+  align-self: center;
+}
+
+.high-score {
+  font-size: 32px;
+  color: #bdbdbd;
+  display: flex;
+}
+
+.high-score-owner {
+  color: rgba(0,122,255,0.3);
+}
+
+.high-score.highest .high-score-owner {
+  color: rgb(0,122,255);
+}
+
+.high-score-value {
+  margin-left: 20px;
+  font-weight: bold;
+}
+
+.high-score.highest {
+  font-size: 60px;
+  color: black;
+  padding-left: 12px;
+  border-left: 8px solid green;
+}
+
+.selected-level-playable {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.coming-soon,
+.empty-high-scores {
+  color: lightgray;
+  font-size: 42px;
+  margin-top: 24px;
+}
+
+.high-scores-loading {
+  align-self: center;
+  margin-top: 10px;
+}
+
+@keyframes loading {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.loading {
+  animation-name: loading;
+  animation-duration: 1s;
+  animation-timing-function: ease-in-out;
+  animation-iteration-count: infinite;
+}
+
+.high-score-name-field {
+  outline: none;
+  border: 0;
+  margin: 0;
+  font-size: 18px;
+  line-height: 18px;
+  padding: 4px;
+  padding-left: 10px;
+  border-radius: 30px;
+  border: 1px solid lightgray;
+}
+
+.high-score-name-field:focus {
+  border-color: rgb(0,122,255);
+}
+
+.high-score-submit {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  color: green;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  font-size: 32px;
+}
+
+.high-score-submit:hover {
+  opacity: 0.6;
 }

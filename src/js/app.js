@@ -9,6 +9,10 @@ require('firebase/firestore');
 const GAMERS = require('../sheetmusic/gamers.json');
 const SHELTER = require('../sheetmusic/shelter.json');
 const HIKARUNARA = require('../sheetmusic/hikarunara.json');
+const THISGAME = require('../sheetmusic/thisgame.json');
+const FLYHIGH = require('../sheetmusic/flyhigh.json');
+
+const SCORE_VALUES = require('../scoreconstants.json');
 
 const SONGS = [
   {
@@ -17,8 +21,9 @@ const SONGS = [
     audioFile: 'src/assets/gamers.mp3',
     sheetMusic: GAMERS,
     albumArtwork: 'src/assets/gamers.png',
+    sourceAnime: 'Gamers!',
     difficulty: 'Hard',
-    songGenre: 'Anime',
+    isAvailable: true,
   },
   {
     songName: 'Hikaru Nara',
@@ -26,8 +31,9 @@ const SONGS = [
     audioFile: 'src/assets/your_lie_in_april_op.mp3',
     sheetMusic: HIKARUNARA,
     albumArtwork: 'src/assets/shigatsu.png',
+    sourceAnime: 'Your Lie In April',
     difficulty: 'Easy',
-    songGenre: 'Anime',
+    isAvailable: true,
   },
   {
     songName: 'Shelter',
@@ -35,8 +41,29 @@ const SONGS = [
     audioFile: 'src/assets/shelter.mp3',
     sheetMusic: SHELTER,
     albumArtwork: 'src/assets/shelter.png',
+    sourceAnime: 'Shelter',
     difficulty: 'Medium',
-    songGenre: 'Pop',
+    isAvailable: false,
+  },
+  {
+    songName: 'This Game',
+    songArtist: 'Konomi Suzuki',
+    audioFile: 'src/assets/nogamenolife.mp3',
+    sheetMusic: THISGAME,
+    albumArtwork: 'src/assets/nogamenolife.png',
+    sourceAnime: 'No Game No Life',
+    difficulty: 'Hard',
+    isAvailable: false,
+  },
+  {
+    songName: 'Fly High!!',
+    songArtist: 'Burnout Syndromes',
+    audioFile: 'src/assets/flyhigh.mp3',
+    sheetMusic: FLYHIGH,
+    albumArtwork: 'src/assets/haikyuu.png',
+    sourceAnime: 'Haikyuu!',
+    difficulty: 'Hard',
+    isAvailable: false,
   },
 ];
 
@@ -48,6 +75,7 @@ const NOTE_HEIGHT = 26;
 const NOTE_END_LOCATION = 540;
 const INITIAL_DELAY = 200;
 const BUFFER_DELAY = 6;
+const DEFAULT_NAME = 'Unnamed';
 
 const KEYMAP = {
   74: 0,
@@ -60,12 +88,19 @@ const KEYMAP = {
   70: 3,
 };
 
+const KEYNAME_MAP = {
+  'A': 0,
+  'S': 1,
+  'D': 2,
+  'F': 3,
+};
+
 export class App extends React.Component {
   constructor(props) {
     super(props);
 
     this.state = {
-      currentSongIndex: 1,
+      currentSongIndex: -1,
       songElement: null,
       currentSongTime: 0,
       currentSongDuration: 0,
@@ -78,13 +113,15 @@ export class App extends React.Component {
         'miss': 0,
       },
       lastRender: 0,
-      songDelay: 0,
+      initialFrames: 0,
       registeredFrets: {},
-      isLevelSelected: true,
+      isLevelSelected: false,
       countdown: 3,
       showCountdown: false,
-      initialFrames: 0,
-      editorMode: true,
+      editorMode: false,
+      songEnded: true,
+      finalScore: 3500,
+      highScoreOwner: '',
     }
 
     // Initialize Firebase
@@ -114,7 +151,7 @@ export class App extends React.Component {
     }
 
     window.onkeydown = (e) => {
-      if (this.state.currentSongIndex == -1) {
+      if (this.state.currentSongIndex == -1 || this.state.songEnded) {
         return;
       }
       let key = e.keyCode ? e.keyCode : e.which;
@@ -128,7 +165,7 @@ export class App extends React.Component {
     }
 
     window.onkeyup = (e) => {
-      if (this.state.currentSongIndex == -1) {
+      if (this.state.currentSongIndex == -1 || this.state.songEnded) {
         return;
       }
       let key = e.keyCode ? e.keyCode : e.which;
@@ -140,81 +177,61 @@ export class App extends React.Component {
         });
       }
     }
-
-    const song = document.getElementById('now-playing-song');
-    song.controls = this.state.editorMode;
-    // const song = new Audio(SONGS[this.state.currentSongIndex].audioFile);
-    if (!song) {
-      return;
-    }
-    let transitionScreen = document.getElementById('transition-screen');
-    this.setState({
-      songElement: song,
-      currentSongTime: Math.floor(song.currentTime),
-      currentSongDuration: Math.floor(song.duration),
-    }, () => {
-      this.mapFrames();
-      // song.play();
-
-      window.requestAnimationFrame(this.gameLoop.bind(this));
-
-      // SAMPLE CODE, get the top 3 scores and when done, print out the scores and add a new score
-      this.getScoresFromDb('gamers', 3, (query) => {
-        query.forEach((user) => {
-          console.log(user.id + " > " + user.data().score);
-        });
-        this.addScoreToDb('gamers', 'test', 100334345, () => {
-          console.log("Just added test -> 100334345 to the database");
-        });
-      });
-    });
   }
-  //
-  // componentDidUpdate(prevProps, prevState) {
-  //   if (this.state.currentSongIndex > -1 && prevState.currentSongIndex == -1) {
-  //     const song = new Audio(SONGS[this.state.currentSongIndex].audioFile);
-  //     if (!song) {
-  //       return;
-  //     }
-  //     let transitionScreen = document.getElementById('transition-screen');
-  //     song.addEventListener('loadedmetadata', (e) => {
-  //       this.setState({
-  //         songElement: song,
-  //         currentSongTime: Math.floor(song.currentTime),
-  //         currentSongDuration: Math.floor(song.duration),
-  //       }, () => {
-  //         this.mapFrames();
-  //         song.play();
-  //
-  //         window.requestAnimationFrame(this.gameLoop.bind(this));
-  //       });
-  //     });
-  //     let countdownInterval = setInterval(() => {
-  //       if (this.state.countdown == -1) {
-  //         clearInterval(countdownInterval);
-  //         this.setState({
-  //           showCountdown: false,
-  //         }, () => {
-  //           song.play();
-  //         });
-  //         return;
-  //       }
-  //       let countdownNum = document.createElement('div');
-  //       countdownNum.innerText =
-  //         this.state.countdown > 0
-  //         ? this.state.countdown
-  //         : 'Go!';
-  //       countdownNum.classList.add('countdown-number');
-  //       transitionScreen.appendChild(countdownNum);
-  //       countdownNum.addEventListener('animationend', (e) => {
-  //         transitionScreen.removeChild(countdownNum);
-  //       });
-  //       this.setState({
-  //         countdown: this.state.countdown - 1,
-  //       });
-  //     }, 1000);
-  //   }
-  // }
+
+  componentDidUpdate(prevProps, prevState) {
+    if (this.state.currentSongIndex > -1 && prevState.currentSongIndex == -1) {
+      // const song = new Audio(SONGS[this.state.currentSongIndex].audioFile);
+      const song = document.getElementById('now-playing-song');
+      song.onended = () => {
+        let finalScore = 0;
+        for (let scoreTier in this.state.scores) {
+          finalScore += SCORE_VALUES[scoreTier] * this.state.scores[scoreTier];
+        }
+        this.setState({
+          songEnded: true,
+          finalScore: finalScore,
+        });
+      }
+      song.controls = this.state.editorMode;
+      if (!song) {
+        return;
+      }
+      // let transitionScreen = document.getElementById('transition-screen-countdown');
+      // let countdownInterval = setInterval(() => {
+      //   if (this.state.countdown == -1) {
+      //     clearInterval(countdownInterval);
+      //     this.setState({
+      //       showCountdown: false,
+      //     }, () => {
+      //       this.setState({
+      //         songElement: song,
+      //         currentSongTime: Math.floor(song.currentTime),
+      //         currentSongDuration: Math.floor(song.duration),
+      //       }, () => {
+      //         this.mapFrames();
+      //
+      //         window.requestAnimationFrame(this.gameLoop.bind(this));
+      //       });
+      //     });
+      //     return;
+      //   }
+      //   let countdownNum = document.createElement('div');
+      //   countdownNum.innerText =
+      //     this.state.countdown > 0
+      //     ? this.state.countdown
+      //     : 'Go!';
+      //   countdownNum.classList.add('countdown-number');
+      //   transitionScreen.appendChild(countdownNum);
+      //   countdownNum.addEventListener('animationend', (e) => {
+      //     transitionScreen.removeChild(countdownNum);
+      //   });
+      //   this.setState({
+      //     countdown: this.state.countdown - 1,
+      //   });
+      // }, 1000);
+    }
+  }
 
   /**
    * Add a new score to the database given the songID, username, and new score.
@@ -222,6 +239,10 @@ export class App extends React.Component {
    **/
   addScoreToDb(songId, userName, score, callback) {
     const db = Firebase.firestore();
+
+    // this.addScoreToDb('gamers', 'test', 100334345, (ref) => {
+    //   console.log(`Just added ${ref.id} to the database`);
+    // });
 
     db.collection('songs').doc(songId).collection('scores').doc(userName).set({
       score: score
@@ -239,11 +260,14 @@ export class App extends React.Component {
    **/
   getScoresFromDb(songId, nScores, callback) {
     const db = Firebase.firestore();
-
     db.collection('songs').doc(songId).collection('scores')
       .orderBy('score', 'desc').limit(nScores).get().then((querySnapshot) => {
         callback(querySnapshot)
       });
+    // SAMPLE CODE
+    // query.forEach((user) => {
+    //   console.log(user.id + " > " + user.data().score);
+    // });
   }
 
   gameLoop(timestamp) {
@@ -435,6 +459,47 @@ export class App extends React.Component {
     }
   }
 
+  _handleNameChange(event) {
+    this.setState({
+      highScoreOwner: event.target.value,
+    });
+  }
+
+  _submitScore() {
+    let highScoreOwner = this.state.highScoreOwner;
+    if (highScoreOwner.length == 0) {
+      highScoreOwner = DEFAULT_NAME;
+    }
+    const songName = SONGS[this.state.currentSongIndex].songName;
+    const score = this.state.finalScore;
+    // console.log('submitted', highScoreOwner, SONGS[this.state.currentSongIndex].songName, this.state.finalScore);
+    this.addScoreToDb(
+      songName, // songId
+      highScoreOwner, //userName
+      score, // score
+      (ref) => {
+      console.log(`Just added ${ref.id} to the database`);
+    });
+  }
+
+  renderInstructions() {
+    let instructionKeys = [];
+    Object.keys(KEYNAME_MAP).forEach((key) => {
+      instructionKeys.push(
+        <div
+          className={
+            this.state.activeKeys.indexOf(KEYNAME_MAP[key]) !== -1
+            ? 'instruction-key instruction-key-' + KEYNAME_MAP[key] + ' active'
+            : 'instruction-key'
+          }
+          key={'instruction-key-' + key}>
+          {key}
+        </div>
+      );
+    });
+    return instructionKeys;
+  }
+
   render() {
     return (
       <div className="content-container">
@@ -444,8 +509,42 @@ export class App extends React.Component {
             <div className='game-container'>
               {
                 this.state.showCountdown
-                ? <div id='transition-screen' className='transition-screen'/>
-                : null
+                ? (
+                  <div className='transition-screen unselectable'>
+                    <div id='transition-screen-countdown' className='transition-screen-countdown'/>
+                    <div className='instruction-keys'>
+                      {this.renderInstructions()}
+                    </div>
+                  </div>
+                ) : null
+              }
+              {
+                this.state.songEnded
+                ? (
+                  <div className='end-game-screen-container unselectable'>
+                    <div className='end-game-screen'>
+                      <div className='song-final-score-label'>
+                        SCORE
+                      </div>
+                      <div className='song-final-score'>
+                        {this.state.finalScore}
+                      </div>
+                      <div className='high-score-name'>
+                        <input
+                          type='text'
+                          value={this.state.highScoreOwner}
+                          onChange={this._handleNameChange.bind(this)}
+                          className='high-score-name-field'
+                          placeholder='Kimi No Na Wa'/>
+                      </div>
+                      <div
+                        className='high-score-submit'
+                        onClick={this._submitScore.bind(this)}>
+                        <i className='fa fa-arrow-circle-right' aria-hidden='true'/>
+                      </div>
+                    </div>
+                  </div>
+                ) : null
               }
               <div className='now-playing-song-name'>
                 <div className='now-playing-label'>
@@ -531,6 +630,7 @@ export class App extends React.Component {
             <div className='level-selector-container'>
               <LevelSelector
                 songLibrary={SONGS}
+                getScores={this.getScoresFromDb.bind(this)}
                 selectLevel={this._selectLevel.bind(this)}/>
             </div>
           )
