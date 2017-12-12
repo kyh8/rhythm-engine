@@ -64,9 +64,9 @@ export class LevelSelector extends React.Component {
               className={
                 index == 0 ? 'highest high-score' : 'high-score'
               }
-              key={'high-score-' + user.id + '-' + index}>
+              key={'high-score-' + user.data().username + '-' + index}>
               <div className='high-score-owner'>
-                {user.id}
+                {user.data().username}
               </div>
               <div className='high-score-value'>
                 {user.data().score}

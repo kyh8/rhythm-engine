@@ -19,6 +19,7 @@ export class Track extends React.Component {
       nextProps.isActive !== this.props.isActive
       || nextProps.currentFrame !== this.props.currentFrame
       || nextProps.spawnTimes !== undefined && this.props.spawnTimes === undefined
+      || nextProps.restartingGame !== this.props.restartingGame
     );
   }
 
@@ -86,6 +87,10 @@ export class Track extends React.Component {
       pulse.addEventListener('animationend', () => {
         hitNotePulse.removeChild(pulse);
       });
+    }
+
+    if (nextProps.restartingGame !== this.props.restartingGame) {
+      this.activeNotes = [];
     }
   }
 

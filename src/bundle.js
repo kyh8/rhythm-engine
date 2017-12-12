@@ -40144,11 +40144,11 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
               'div',
               {
                 className: index == 0 ? 'highest high-score' : 'high-score',
-                key: 'high-score-' + user.id + '-' + index },
+                key: 'high-score-' + user.data().username + '-' + index },
               React.createElement(
                 'div',
                 { className: 'high-score-owner' },
-                user.id
+                user.data().username
               ),
               React.createElement(
                 'div',
@@ -40383,7 +40383,7 @@ var Track = exports.Track = function (_React$Component) {
   }, {
     key: 'shouldComponentUpdate',
     value: function shouldComponentUpdate(nextProps, nextState) {
-      return nextProps.isActive !== this.props.isActive || nextProps.currentFrame !== this.props.currentFrame || nextProps.spawnTimes !== undefined && this.props.spawnTimes === undefined;
+      return nextProps.isActive !== this.props.isActive || nextProps.currentFrame !== this.props.currentFrame || nextProps.spawnTimes !== undefined && this.props.spawnTimes === undefined || nextProps.restartingGame !== this.props.restartingGame;
     }
   }, {
     key: 'componentWillUpdate',
@@ -40455,6 +40455,10 @@ var Track = exports.Track = function (_React$Component) {
             hitNotePulse.removeChild(pulse);
           });
         })();
+      }
+
+      if (nextProps.restartingGame !== this.props.restartingGame) {
+        this.activeNotes = [];
       }
     }
   }, {
@@ -40577,6 +40581,8 @@ module.exports = Util;
 Object.defineProperty(exports, "__esModule", {
   value: true
 });
+
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol && obj !== Symbol.prototype ? "symbol" : typeof obj; };
 
 var _createClass = function () { function defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, descriptor.key, descriptor); } } return function (Constructor, protoProps, staticProps) { if (protoProps) defineProperties(Constructor.prototype, protoProps); if (staticProps) defineProperties(Constructor, staticProps); return Constructor; }; }();
 
@@ -40702,11 +40708,14 @@ var App = exports.App = function (_React$Component) {
       registeredFrets: {},
       isLevelSelected: false,
       countdown: 3,
-      showCountdown: false,
+      showCountdown: true,
       editorMode: false,
-      songEnded: true,
-      finalScore: 3500,
-      highScoreOwner: ''
+      songEnded: false,
+      finalScore: 0,
+      highScoreOwner: '',
+      submittingScore: false,
+      showEndGameMenu: false,
+      restartingGame: false
     };
 
     // Initialize Firebase
@@ -40734,9 +40743,6 @@ var App = exports.App = function (_React$Component) {
         var key = e.keyCode ? e.keyCode : e.which;
         if (key === 32 && _this2.state.editorMode) {
           _this2._pauseGame();
-        }
-        if (key === 114) {
-          _this2._restartGame();
         }
       };
 
@@ -40773,56 +40779,59 @@ var App = exports.App = function (_React$Component) {
     value: function componentDidUpdate(prevProps, prevState) {
       var _this3 = this;
 
-      if (this.state.currentSongIndex > -1 && prevState.currentSongIndex == -1) {
-        // const song = new Audio(SONGS[this.state.currentSongIndex].audioFile);
-        var song = document.getElementById('now-playing-song');
-        song.onended = function () {
-          var finalScore = 0;
-          for (var scoreTier in _this3.state.scores) {
-            finalScore += SCORE_VALUES[scoreTier] * _this3.state.scores[scoreTier];
+      if (this.state.currentSongIndex > -1 && prevState.currentSongIndex == -1 || this.state.currentSongIndex > -1 && !this.state.songEnded && prevState.songEnded) {
+        var _ret = function () {
+          // const song = new Audio(SONGS[this.state.currentSongIndex].audioFile);
+          var song = document.getElementById('now-playing-song');
+          song.onended = function () {
+            var finalScore = 0;
+            for (var scoreTier in _this3.state.scores) {
+              finalScore += SCORE_VALUES[scoreTier] * _this3.state.scores[scoreTier];
+            }
+            _this3.setState({
+              songEnded: true,
+              finalScore: finalScore
+            });
+          };
+          song.controls = _this3.state.editorMode;
+          if (!song) {
+            return {
+              v: void 0
+            };
           }
-          _this3.setState({
-            songEnded: true,
-            finalScore: finalScore
-          });
-        };
-        song.controls = this.state.editorMode;
-        if (!song) {
-          return;
-        }
-        // let transitionScreen = document.getElementById('transition-screen-countdown');
-        // let countdownInterval = setInterval(() => {
-        //   if (this.state.countdown == -1) {
-        //     clearInterval(countdownInterval);
-        //     this.setState({
-        //       showCountdown: false,
-        //     }, () => {
-        //       this.setState({
-        //         songElement: song,
-        //         currentSongTime: Math.floor(song.currentTime),
-        //         currentSongDuration: Math.floor(song.duration),
-        //       }, () => {
-        //         this.mapFrames();
-        //
-        //         window.requestAnimationFrame(this.gameLoop.bind(this));
-        //       });
-        //     });
-        //     return;
-        //   }
-        //   let countdownNum = document.createElement('div');
-        //   countdownNum.innerText =
-        //     this.state.countdown > 0
-        //     ? this.state.countdown
-        //     : 'Go!';
-        //   countdownNum.classList.add('countdown-number');
-        //   transitionScreen.appendChild(countdownNum);
-        //   countdownNum.addEventListener('animationend', (e) => {
-        //     transitionScreen.removeChild(countdownNum);
-        //   });
-        //   this.setState({
-        //     countdown: this.state.countdown - 1,
-        //   });
-        // }, 1000);
+          var transitionScreen = document.getElementById('transition-screen-countdown');
+          var countdownInterval = setInterval(function () {
+            if (_this3.state.countdown == -1) {
+              clearInterval(countdownInterval);
+              _this3.setState({
+                showCountdown: false
+              }, function () {
+                _this3.setState({
+                  songElement: song,
+                  currentSongTime: Math.floor(song.currentTime),
+                  currentSongDuration: Math.floor(song.duration)
+                }, function () {
+                  _this3.mapFrames();
+
+                  window.requestAnimationFrame(_this3.gameLoop.bind(_this3));
+                });
+              });
+              return;
+            }
+            var countdownNum = document.createElement('div');
+            countdownNum.innerText = _this3.state.countdown > 0 ? _this3.state.countdown : 'Go!';
+            countdownNum.classList.add('countdown-number');
+            transitionScreen.appendChild(countdownNum);
+            countdownNum.addEventListener('animationend', function (e) {
+              transitionScreen.removeChild(countdownNum);
+            });
+            _this3.setState({
+              countdown: _this3.state.countdown - 1
+            });
+          }, 1000);
+        }();
+
+        if ((typeof _ret === 'undefined' ? 'undefined' : _typeof(_ret)) === "object") return _ret.v;
       }
     }
 
@@ -40860,12 +40869,15 @@ var App = exports.App = function (_React$Component) {
       });
       // SAMPLE CODE
       // query.forEach((user) => {
-      //   console.log(user.id + " > " + user.data().score);
+      //   console.log(user.data().username + " > " + user.data().score);
       // });
     }
   }, {
     key: 'gameLoop',
     value: function gameLoop(timestamp) {
+      if (this.state.showCountdown || this.state.songEnded) {
+        return;
+      }
       var progress = timestamp - this.state.lastRender;
 
       this.updateFrame(progress);
@@ -41008,7 +41020,8 @@ var App = exports.App = function (_React$Component) {
           spawnTimes: this.state.noteMap[i],
           updateScore: this.updateScore.bind(this),
           registerFret: this.registerFret.bind(this),
-          intialDelay: INITIAL_DELAY }));
+          intialDelay: INITIAL_DELAY,
+          restartingGame: this.state.restartingGame }));
       }
       return tracks;
     }
@@ -41037,20 +41050,52 @@ var App = exports.App = function (_React$Component) {
   }, {
     key: '_restartGame',
     value: function _restartGame() {
-      var _this4 = this;
-
       if (this.state.songElement) {
         this.state.songElement.currentTime = 0;
         this.setState({
+          initialFrames: 0,
           scores: {
             'perfect': 0,
             'good': 0,
             'miss': 0
-          }
-        }, function () {
-          _this4.state.songElement.play();
-        });
+          },
+          showCountdown: true,
+          countdown: 3,
+          songEnded: false,
+          highScoreOwner: '',
+          submittingScore: false,
+          showEndGameMenu: false,
+          currentFrame: 0,
+          restartingGame: !this.state.restartingGame
+        }, function () {});
       }
+    }
+  }, {
+    key: '_returnToLevelSelectMenu',
+    value: function _returnToLevelSelectMenu() {
+      this.setState({
+        currentSongIndex: -1,
+        songElement: null,
+        currentSongTime: 0,
+        currentSongDuration: 0,
+        currentFrame: 0,
+        scores: {
+          'perfect': 0,
+          'good': 0,
+          'miss': 0
+        },
+        initialFrames: 0,
+        registeredFrets: {},
+        isLevelSelected: false,
+        countdown: 3,
+        showCountdown: true,
+        songEnded: false,
+        finalScore: 0,
+        highScoreOwner: '',
+        submittingScore: false,
+        showEndGameMenu: false,
+        restartingGame: !this.state.restartingGame
+      });
     }
   }, {
     key: '_pauseGame',
@@ -41073,18 +41118,30 @@ var App = exports.App = function (_React$Component) {
   }, {
     key: '_submitScore',
     value: function _submitScore() {
+      var _this4 = this;
+
+      if (this.state.submittingScore) {
+        return;
+      }
       var highScoreOwner = this.state.highScoreOwner;
       if (highScoreOwner.length == 0) {
         highScoreOwner = DEFAULT_NAME;
       }
       var songName = SONGS[this.state.currentSongIndex].songName;
       var score = this.state.finalScore;
-      // console.log('submitted', highScoreOwner, SONGS[this.state.currentSongIndex].songName, this.state.finalScore);
-      this.addScoreToDb(songName, // songId
-      highScoreOwner, //userName
-      score, // score
-      function (ref) {
-        console.log('Just added ' + ref.id + ' to the database');
+
+      this.setState({
+        submittingScore: true
+      }, function () {
+        _this4.addScoreToDb(songName, // songId
+        highScoreOwner, //userName
+        score, // score
+        function (ref) {
+          _this4.setState({
+            submittingScore: false,
+            showEndGameMenu: true
+          });
+        });
       });
     }
   }, {
@@ -41131,30 +41188,57 @@ var App = exports.App = function (_React$Component) {
               { className: 'end-game-screen' },
               React.createElement(
                 'div',
-                { className: 'song-final-score-label' },
-                'SCORE'
-              ),
-              React.createElement(
-                'div',
-                { className: 'song-final-score' },
-                this.state.finalScore
-              ),
-              React.createElement(
-                'div',
-                { className: 'high-score-name' },
-                React.createElement('input', {
-                  type: 'text',
-                  value: this.state.highScoreOwner,
-                  onChange: this._handleNameChange.bind(this),
-                  className: 'high-score-name-field',
-                  placeholder: 'Kimi No Na Wa' })
-              ),
-              React.createElement(
-                'div',
-                {
-                  className: 'high-score-submit',
-                  onClick: this._submitScore.bind(this) },
-                React.createElement('i', { className: 'fa fa-arrow-circle-right', 'aria-hidden': 'true' })
+                { className: this.state.showEndGameMenu ? 'end-game-screen-inner show-menu' : 'end-game-screen-inner' },
+                React.createElement(
+                  'div',
+                  { className: 'end-game-screen-score' },
+                  React.createElement(
+                    'div',
+                    { className: 'song-final-score-label' },
+                    'SCORE'
+                  ),
+                  React.createElement(
+                    'div',
+                    { className: 'song-final-score' },
+                    this.state.finalScore
+                  ),
+                  React.createElement(
+                    'div',
+                    { className: 'high-score-name' },
+                    React.createElement('input', {
+                      type: 'text',
+                      value: this.state.highScoreOwner,
+                      onChange: this._handleNameChange.bind(this),
+                      className: 'high-score-name-field',
+                      placeholder: 'Kimi No Na Wa',
+                      maxLength: '10' })
+                  ),
+                  React.createElement(
+                    'div',
+                    {
+                      className: this.state.submittingScore ? 'high-score-submit submitting' : 'high-score-submit',
+                      onClick: this._submitScore.bind(this) },
+                    React.createElement('i', { className: 'fa fa-arrow-circle-right', 'aria-hidden': 'true' })
+                  )
+                ),
+                React.createElement(
+                  'div',
+                  { className: 'end-game-screen-menu' },
+                  React.createElement(
+                    'div',
+                    {
+                      className: 'end-game-menu-button',
+                      onClick: this._restartGame.bind(this) },
+                    React.createElement('i', { className: 'fa fa-refresh', 'aria-hidden': 'true' })
+                  ),
+                  React.createElement(
+                    'div',
+                    {
+                      className: 'end-game-menu-button',
+                      onClick: this._returnToLevelSelectMenu.bind(this) },
+                    React.createElement('i', { className: 'fa fa-list-ul', 'aria-hidden': 'true' })
+                  )
+                )
               )
             )
           ) : null,
@@ -41284,11 +41368,11 @@ var App = exports.App = function (_React$Component) {
               React.createElement('i', { className: 'fa fa-info-circle', 'aria-hidden': 'true' })
             )
           ) : null,
-          React.createElement(
+          this.state.editorMode ? React.createElement(
             'div',
             { className: 'frame-count' },
             'Frame: ' + this.state.currentFrame
-          )
+          ) : null
         ) : React.createElement(
           'div',
           { className: 'level-selector-container' },

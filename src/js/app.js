@@ -117,11 +117,14 @@ export class App extends React.Component {
       registeredFrets: {},
       isLevelSelected: false,
       countdown: 3,
-      showCountdown: false,
+      showCountdown: true,
       editorMode: false,
-      songEnded: true,
-      finalScore: 3500,
+      songEnded: false,
+      finalScore: 0,
       highScoreOwner: '',
+      submittingScore: false,
+      showEndGameMenu: false,
+      restartingGame: false,
     }
 
     // Initialize Firebase
@@ -144,9 +147,6 @@ export class App extends React.Component {
       let key = e.keyCode ? e.keyCode : e.which;
       if (key === 32 && this.state.editorMode) {
         this._pauseGame();
-      }
-      if (key === 114) {
-        this._restartGame();
       }
     }
 
@@ -180,7 +180,10 @@ export class App extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.currentSongIndex > -1 && prevState.currentSongIndex == -1) {
+    if (
+      this.state.currentSongIndex > -1 && prevState.currentSongIndex == -1
+      || this.state.currentSongIndex > -1 && !this.state.songEnded && prevState.songEnded
+    ) {
       // const song = new Audio(SONGS[this.state.currentSongIndex].audioFile);
       const song = document.getElementById('now-playing-song');
       song.onended = () => {
@@ -197,39 +200,39 @@ export class App extends React.Component {
       if (!song) {
         return;
       }
-      // let transitionScreen = document.getElementById('transition-screen-countdown');
-      // let countdownInterval = setInterval(() => {
-      //   if (this.state.countdown == -1) {
-      //     clearInterval(countdownInterval);
-      //     this.setState({
-      //       showCountdown: false,
-      //     }, () => {
-      //       this.setState({
-      //         songElement: song,
-      //         currentSongTime: Math.floor(song.currentTime),
-      //         currentSongDuration: Math.floor(song.duration),
-      //       }, () => {
-      //         this.mapFrames();
-      //
-      //         window.requestAnimationFrame(this.gameLoop.bind(this));
-      //       });
-      //     });
-      //     return;
-      //   }
-      //   let countdownNum = document.createElement('div');
-      //   countdownNum.innerText =
-      //     this.state.countdown > 0
-      //     ? this.state.countdown
-      //     : 'Go!';
-      //   countdownNum.classList.add('countdown-number');
-      //   transitionScreen.appendChild(countdownNum);
-      //   countdownNum.addEventListener('animationend', (e) => {
-      //     transitionScreen.removeChild(countdownNum);
-      //   });
-      //   this.setState({
-      //     countdown: this.state.countdown - 1,
-      //   });
-      // }, 1000);
+      let transitionScreen = document.getElementById('transition-screen-countdown');
+      let countdownInterval = setInterval(() => {
+        if (this.state.countdown == -1) {
+          clearInterval(countdownInterval);
+          this.setState({
+            showCountdown: false,
+          }, () => {
+            this.setState({
+              songElement: song,
+              currentSongTime: Math.floor(song.currentTime),
+              currentSongDuration: Math.floor(song.duration),
+            }, () => {
+              this.mapFrames();
+
+              window.requestAnimationFrame(this.gameLoop.bind(this));
+            });
+          });
+          return;
+        }
+        let countdownNum = document.createElement('div');
+        countdownNum.innerText =
+          this.state.countdown > 0
+          ? this.state.countdown
+          : 'Go!';
+        countdownNum.classList.add('countdown-number');
+        transitionScreen.appendChild(countdownNum);
+        countdownNum.addEventListener('animationend', (e) => {
+          transitionScreen.removeChild(countdownNum);
+        });
+        this.setState({
+          countdown: this.state.countdown - 1,
+        });
+      }, 1000);
     }
   }
 
@@ -262,11 +265,14 @@ export class App extends React.Component {
       });
     // SAMPLE CODE
     // query.forEach((user) => {
-    //   console.log(user.id + " > " + user.data().score);
+    //   console.log(user.data().username + " > " + user.data().score);
     // });
   }
 
   gameLoop(timestamp) {
+    if (this.state.showCountdown || this.state.songEnded) {
+      return;
+    }
     let progress = timestamp - this.state.lastRender;
 
     this.updateFrame(progress);
@@ -405,7 +411,8 @@ export class App extends React.Component {
           spawnTimes = {this.state.noteMap[i]}
           updateScore = {this.updateScore.bind(this)}
           registerFret = {this.registerFret.bind(this)}
-          intialDelay = {INITIAL_DELAY}/>
+          intialDelay = {INITIAL_DELAY}
+          restartingGame = {this.state.restartingGame} />
       );
     }
     return tracks;
@@ -434,15 +441,50 @@ export class App extends React.Component {
     if (this.state.songElement) {
       this.state.songElement.currentTime = 0;
       this.setState({
+        initialFrames: 0,
         scores: {
           'perfect': 0,
           'good': 0,
           'miss': 0,
         },
+        showCountdown: true,
+        countdown: 3,
+        songEnded: false,
+        highScoreOwner: '',
+        submittingScore: false,
+        showEndGameMenu: false,
+        currentFrame: 0,
+        restartingGame: !this.state.restartingGame,
       }, () => {
-        this.state.songElement.play();
+
       });
     }
+  }
+
+  _returnToLevelSelectMenu() {
+    this.setState({
+      currentSongIndex: -1,
+      songElement: null,
+      currentSongTime: 0,
+      currentSongDuration: 0,
+      currentFrame: 0,
+      scores: {
+        'perfect': 0,
+        'good': 0,
+        'miss': 0,
+      },
+      initialFrames: 0,
+      registeredFrets: {},
+      isLevelSelected: false,
+      countdown: 3,
+      showCountdown: true,
+      songEnded: false,
+      finalScore: 0,
+      highScoreOwner: '',
+      submittingScore: false,
+      showEndGameMenu: false,
+      restartingGame: !this.state.restartingGame,
+    });
   }
 
   _pauseGame() {
@@ -462,19 +504,29 @@ export class App extends React.Component {
   }
 
   _submitScore() {
+    if (this.state.submittingScore) {
+      return;
+    }
     let highScoreOwner = this.state.highScoreOwner;
     if (highScoreOwner.length == 0) {
       highScoreOwner = DEFAULT_NAME;
     }
     const songName = SONGS[this.state.currentSongIndex].songName;
     const score = this.state.finalScore;
-    // console.log('submitted', highScoreOwner, SONGS[this.state.currentSongIndex].songName, this.state.finalScore);
-    this.addScoreToDb(
-      songName, // songId
-      highScoreOwner, //userName
-      score, // score
-      (ref) => {
-      console.log(`Just added ${ref.id} to the database`);
+
+    this.setState({
+      submittingScore: true,
+    },() => {
+      this.addScoreToDb(
+        songName, // songId
+        highScoreOwner, //userName
+        score, // score
+        (ref) => {
+        this.setState({
+          submittingScore: false,
+          showEndGameMenu: true,
+        });
+      });
     });
   }
 
@@ -519,24 +571,49 @@ export class App extends React.Component {
                 ? (
                   <div className='end-game-screen-container unselectable'>
                     <div className='end-game-screen'>
-                      <div className='song-final-score-label'>
-                        SCORE
-                      </div>
-                      <div className='song-final-score'>
-                        {this.state.finalScore}
-                      </div>
-                      <div className='high-score-name'>
-                        <input
-                          type='text'
-                          value={this.state.highScoreOwner}
-                          onChange={this._handleNameChange.bind(this)}
-                          className='high-score-name-field'
-                          placeholder='Kimi No Na Wa'/>
-                      </div>
-                      <div
-                        className='high-score-submit'
-                        onClick={this._submitScore.bind(this)}>
-                        <i className='fa fa-arrow-circle-right' aria-hidden='true'/>
+                      <div className={
+                        this.state.showEndGameMenu
+                        ? 'end-game-screen-inner show-menu'
+                        : 'end-game-screen-inner'
+                      }>
+                        <div className='end-game-screen-score'>
+                          <div className='song-final-score-label'>
+                            SCORE
+                          </div>
+                          <div className='song-final-score'>
+                            {this.state.finalScore}
+                          </div>
+                          <div className='high-score-name'>
+                            <input
+                              type='text'
+                              value={this.state.highScoreOwner}
+                              onChange={this._handleNameChange.bind(this)}
+                              className='high-score-name-field'
+                              placeholder='Kimi No Na Wa'
+                              maxLength='10'/>
+                          </div>
+                          <div
+                            className={
+                              this.state.submittingScore
+                              ? 'high-score-submit submitting'
+                              : 'high-score-submit'
+                            }
+                            onClick={this._submitScore.bind(this)}>
+                            <i className='fa fa-arrow-circle-right' aria-hidden='true'/>
+                          </div>
+                        </div>
+                        <div className='end-game-screen-menu'>
+                          <div
+                            className='end-game-menu-button'
+                            onClick={this._restartGame.bind(this)}>
+                            <i className="fa fa-refresh" aria-hidden="true"></i>
+                          </div>
+                          <div
+                            className='end-game-menu-button'
+                            onClick={this._returnToLevelSelectMenu.bind(this)}>
+                            <i className="fa fa-list-ul" aria-hidden="true"></i>
+                          </div>
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -618,9 +695,14 @@ export class App extends React.Component {
                     </div>
                   </div>
                 ): null}
-              <div className='frame-count'>
-                {'Frame: ' + this.state.currentFrame}
-              </div>
+              {
+                this.state.editorMode
+                ? (
+                  <div className='frame-count'>
+                    {'Frame: ' + this.state.currentFrame}
+                  </div>
+                ): null
+              }
             </div>
           ) : (
             <div className='level-selector-container'>
