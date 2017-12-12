@@ -2,6 +2,9 @@ const LevelSelector = require('./LevelSelector');
 const React = require('react');
 const Track = require('./Track');
 const Util = require('./Util');
+const Firebase = require('firebase/app');
+require('firebase/firestore');
+
 
 const GAMERS = require('../sheetmusic/gamers.json');
 const SHELTER = require('../sheetmusic/shelter.json');
@@ -83,7 +86,18 @@ export class App extends React.Component {
       initialFrames: 0,
       editorMode: true,
     }
-  }
+
+    // Initialize Firebase
+    const config = {
+     apiKey: "AIzaSyDmsxEspDer5jnqnFVv_zF0_f_0V4E3920",
+     authDomain: "rhythm-engine.firebaseapp.com",
+     databaseURL: "https://rhythm-engine.firebaseio.com",
+     projectId: "rhythm-engine",
+     storageBucket: "",
+     messagingSenderId: "173306413344"
+    };
+    Firebase.initializeApp(config);
+}
 
   componentDidMount() {
     window.onkeypress = (e) => {
@@ -143,6 +157,14 @@ export class App extends React.Component {
       // song.play();
 
       window.requestAnimationFrame(this.gameLoop.bind(this));
+
+      // SAMPLE CODE, get the top 3 scores and when done, print out the scores and add a new score
+      this.getScoresFromDb('gamers', 3, (query) => {
+        query.forEach((user) => {
+          console.log(user.data().username + " > " + user.data().score);
+        });
+        this.addScoreToDb('gamers', 'test', 100334345);
+      });
     });
   }
   //
@@ -191,6 +213,38 @@ export class App extends React.Component {
   //     }, 1000);
   //   }
   // }
+
+  /**
+   * Add a new score to the database given the songID, username, and new score.
+   **/
+  addScoreToDb(songId, userName, score) {
+    const db = Firebase.firestore();
+
+    db.collection('songs').doc(songId).collection('scores').add({
+      username: userName,
+      score: score
+    }).then((documentRef) => {
+      console.log("Added document with ID: ", documentRef.id);
+    });
+  }
+
+  /**
+   * Given a song and number of scores to return, calls the callback with a snapshot
+   * of the scores.
+   *
+   * The query snapshot is iterable of user documents, which are accessed as follows:
+   *
+   *     user.data().username   >>   username for this score
+   *     user.data().score      >>   the respective score
+   **/
+  getScoresFromDb(songId, nScores, callback) {
+    const db = Firebase.firestore();
+
+    db.collection('songs').doc(songId).collection('scores')
+      .orderBy('score', 'desc').limit(nScores).get().then((querySnapshot) => {
+        callback(querySnapshot)
+      });
+  }
 
   gameLoop(timestamp) {
     let progress = timestamp - this.state.lastRender;
