@@ -547,25 +547,25 @@ audio {
   display: flex;
   justify-content: center;
   align-items: center;
-  flex-direction: column;
   background-color: rgba(255,255,255,0.9);
   min-width: 480px;
 }
 
+
 .empty-level-selector-info-panel {
   background-color: gray;
+  flex-direction: column;
 }
 
 .unselected-level-text {
   font-size: 42px;
   color: lightgray;
-  text-shadow: 0 0 2px black;
 }
 
 .selected-level-album-artwork,
 .selected-level-album-artwork img {
-  width: 360px;
-  height: 360px;
+  width: 320px;
+  height: 320px;
 }
 
 .selected-level-album-artwork {
@@ -601,20 +601,20 @@ audio {
   border-bottom-right-radius: 10px;
 }
 
-.selected-level-info {
+.selected-level-metadata {
   margin-top: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
 }
 
-.selected-level-info div {
+.selected-level-metadata div {
   margin-left: 10px;
   font-size: 18px;
   line-height: 18px;
 }
 
-.selected-level-info div:first-child {
+.selected-level-metadata div:first-child {
   margin-left: 0;
 }
 
@@ -624,7 +624,7 @@ audio {
 }
 
 .selected-level-buttons {
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .selected-level-play-button {
@@ -782,41 +782,44 @@ audio {
 .selected-level-high-scores {
   display: flex;
   justify-content: center;
-  align-items: flex-end;
+  align-items: flex-start;
   flex-direction: column;
-  margin-top: 20px;
+  width: 300px;
+  margin-left: 40px;
 }
 
 .selected-level-high-scores-label {
-  color: green;
+  color: gray;
   font-size: 24px;
-  align-self: center;
+  margin-bottom: 10px;
 }
 
 .high-score {
-  font-size: 32px;
-  color: #bdbdbd;
+  font-size: 24px;
+  color: black;
   display: flex;
+  justify-content: flex-start;
+  opacity: 0.3;
+  cursor: pointer;
+  transition: 0.2s all ease;
 }
 
 .high-score-owner {
-  color: rgba(0,122,255,0.3);
-}
-
-.high-score.highest .high-score-owner {
+  margin-left: 20px;
   color: rgb(0,122,255);
 }
 
 .high-score-value {
-  margin-left: 20px;
   font-weight: bold;
 }
 
+.high-score.highest,
+.high-score:hover {
+  opacity: 1;
+}
+
 .high-score.highest {
-  font-size: 60px;
-  color: black;
-  padding-left: 12px;
-  border-left: 8px solid green;
+  font-size: 36px;
 }
 
 .selected-level-playable {
@@ -830,12 +833,12 @@ audio {
 .empty-high-scores {
   color: lightgray;
   font-size: 42px;
-  margin-top: 24px;
+  margin-top: 20px;
 }
 
 .high-scores-loading {
   align-self: center;
-  margin-top: 24px;
+  margin-top: 40px;
   height: 49px;
 }
 
@@ -911,4 +914,18 @@ audio {
 
 .end-game-menu-button:hover {
   background-color: lightgray;
+}
+
+.selected-level-info {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+}
+
+.selected-level-info-container {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  width: 100%;
 }

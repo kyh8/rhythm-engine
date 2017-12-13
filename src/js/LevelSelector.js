@@ -52,7 +52,7 @@ export class LevelSelector extends React.Component {
 
   renderHighScores() {
     const songName = this.props.songLibrary[this.state.selectedLevel].songName;
-    this.props.getScores(songName, 3, (highScores) => {
+    this.props.getScores(songName, 7, (highScores) => {
       this.setState({
         loadingHighScores: false,
       }, () => {
@@ -62,14 +62,16 @@ export class LevelSelector extends React.Component {
           highScoreElements.push(
             <div
               className={
-                index == 0 ? 'highest high-score' : 'high-score'
+                index == 0
+                ? 'highest high-score top-' + index
+                : 'high-score top-' + index
               }
               key={'high-score-' + user.data().username + '-' + index}>
+              <div className='high-score-value'>
+                {(index + 1) + '. ' + user.data().score}
+              </div>
               <div className='high-score-owner'>
                 {user.data().username}
-              </div>
-              <div className='high-score-value'>
-                {user.data().score}
               </div>
             </div>
           );
@@ -106,35 +108,51 @@ export class LevelSelector extends React.Component {
     let isAvailable = this.props.songLibrary[this.state.selectedLevel].isAvailable;
     return (
       <div className='level-selector-info-panel'>
-        <div className='selected-level-album-artwork'>
-          <img src={albumArtwork}/>
-        </div>
-        <div className='selected-level-song-info unselectable'>
-          <div className='selected-level-song-name'>
-            {songName}
+        <div className='selected-level-info-container'>
+          <div className='selected-level-info'>
+            <div className='selected-level-album-artwork'>
+              <img src={albumArtwork}/>
+            </div>
+            <div className='selected-level-song-info unselectable'>
+              <div className='selected-level-song-name'>
+                {songName}
+              </div>
+              <div className='selected-level-song-artist'>
+                {songArtist}
+              </div>
+            </div>
+            <div className='selected-level-metadata'>
+              <div className={'difficulty-tag'}>
+                {songDifficulty.toUpperCase()}
+              </div>
+              <div className={'divider'}>
+                &middot;
+              </div>
+              <div className={'source-anime'}>
+                {sourceAnime}
+              </div>
+            </div>
+            {
+              isAvailable
+              ? (
+                <div className='selected-level-buttons'>
+                  <div
+                    className='selected-level-play-button'
+                    onClick={this.props.selectLevel.bind(this, this.state.selectedLevel)}>
+                    <i className='fa fa-play-circle' aria-hidden='true'/>
+                  </div>
+                </div>
+              ): (
+                <div className='coming-soon'>COMING SOON</div>
+              )
+            }
           </div>
-          <div className='selected-level-song-artist'>
-            {songArtist}
-          </div>
-        </div>
-        <div className='selected-level-info'>
-          <div className={'difficulty-tag'}>
-            {songDifficulty.toUpperCase()}
-          </div>
-          <div className={'divider'}>
-            &middot;
-          </div>
-          <div className={'source-anime'}>
-            {sourceAnime}
-          </div>
-        </div>
-        {
-          isAvailable
-          ? (
-            <div className='selected-level-playable'>
+          {
+            isAvailable
+            ? (
               <div className='selected-level-high-scores'>
                 <div className='selected-level-high-scores-label'>
-                  HIGH SCORES
+                  {'HIGH SCORES'}
                 </div>
                 {
                   this.state.loadingHighScores
@@ -145,16 +163,9 @@ export class LevelSelector extends React.Component {
                   ): this.state.highScores
                 }
               </div>
-              <div className='selected-level-buttons'>
-                <div
-                  className='selected-level-play-button'
-                  onClick={this.props.selectLevel.bind(this, this.state.selectedLevel)}>
-                  <i className='fa fa-play-circle' aria-hidden='true'/>
-                </div>
-              </div>
-            </div>
-          ) : <div className='coming-soon'>COMING SOON</div>
-        }
+            ): null
+          }
+        </div>
       </div>
     );
   }

@@ -40133,7 +40133,7 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
       var _this4 = this;
 
       var songName = this.props.songLibrary[this.state.selectedLevel].songName;
-      this.props.getScores(songName, 3, function (highScores) {
+      this.props.getScores(songName, 7, function (highScores) {
         _this4.setState({
           loadingHighScores: false
         }, function () {
@@ -40143,17 +40143,17 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
             highScoreElements.push(React.createElement(
               'div',
               {
-                className: index == 0 ? 'highest high-score' : 'high-score',
+                className: index == 0 ? 'highest high-score top-' + index : 'high-score top-' + index,
                 key: 'high-score-' + user.data().username + '-' + index },
+              React.createElement(
+                'div',
+                { className: 'high-score-value' },
+                index + 1 + '. ' + user.data().score
+              ),
               React.createElement(
                 'div',
                 { className: 'high-score-owner' },
                 user.data().username
-              ),
-              React.createElement(
-                'div',
-                { className: 'high-score-value' },
-                user.data().score
               )
             ));
             index++;
@@ -40193,46 +40193,65 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
         { className: 'level-selector-info-panel' },
         React.createElement(
           'div',
-          { className: 'selected-level-album-artwork' },
-          React.createElement('img', { src: albumArtwork })
-        ),
-        React.createElement(
-          'div',
-          { className: 'selected-level-song-info unselectable' },
+          { className: 'selected-level-info-container' },
           React.createElement(
             'div',
-            { className: 'selected-level-song-name' },
-            songName
+            { className: 'selected-level-info' },
+            React.createElement(
+              'div',
+              { className: 'selected-level-album-artwork' },
+              React.createElement('img', { src: albumArtwork })
+            ),
+            React.createElement(
+              'div',
+              { className: 'selected-level-song-info unselectable' },
+              React.createElement(
+                'div',
+                { className: 'selected-level-song-name' },
+                songName
+              ),
+              React.createElement(
+                'div',
+                { className: 'selected-level-song-artist' },
+                songArtist
+              )
+            ),
+            React.createElement(
+              'div',
+              { className: 'selected-level-metadata' },
+              React.createElement(
+                'div',
+                { className: 'difficulty-tag' },
+                songDifficulty.toUpperCase()
+              ),
+              React.createElement(
+                'div',
+                { className: 'divider' },
+                '\xB7'
+              ),
+              React.createElement(
+                'div',
+                { className: 'source-anime' },
+                sourceAnime
+              )
+            ),
+            isAvailable ? React.createElement(
+              'div',
+              { className: 'selected-level-buttons' },
+              React.createElement(
+                'div',
+                {
+                  className: 'selected-level-play-button',
+                  onClick: this.props.selectLevel.bind(this, this.state.selectedLevel) },
+                React.createElement('i', { className: 'fa fa-play-circle', 'aria-hidden': 'true' })
+              )
+            ) : React.createElement(
+              'div',
+              { className: 'coming-soon' },
+              'COMING SOON'
+            )
           ),
-          React.createElement(
-            'div',
-            { className: 'selected-level-song-artist' },
-            songArtist
-          )
-        ),
-        React.createElement(
-          'div',
-          { className: 'selected-level-info' },
-          React.createElement(
-            'div',
-            { className: 'difficulty-tag' },
-            songDifficulty.toUpperCase()
-          ),
-          React.createElement(
-            'div',
-            { className: 'divider' },
-            '\xB7'
-          ),
-          React.createElement(
-            'div',
-            { className: 'source-anime' },
-            sourceAnime
-          )
-        ),
-        isAvailable ? React.createElement(
-          'div',
-          { className: 'selected-level-playable' },
-          React.createElement(
+          isAvailable ? React.createElement(
             'div',
             { className: 'selected-level-high-scores' },
             React.createElement(
@@ -40245,22 +40264,7 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
               { className: 'high-scores-loading' },
               React.createElement('i', { className: 'fa fa-refresh fa-2x fa-fw loading' })
             ) : this.state.highScores
-          ),
-          React.createElement(
-            'div',
-            { className: 'selected-level-buttons' },
-            React.createElement(
-              'div',
-              {
-                className: 'selected-level-play-button',
-                onClick: this.props.selectLevel.bind(this, this.state.selectedLevel) },
-              React.createElement('i', { className: 'fa fa-play-circle', 'aria-hidden': 'true' })
-            )
-          )
-        ) : React.createElement(
-          'div',
-          { className: 'coming-soon' },
-          'COMING SOON'
+          ) : null
         )
       );
     }
