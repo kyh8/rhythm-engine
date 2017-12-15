@@ -115,7 +115,7 @@ export class Track extends React.Component {
         const offsetTop = note.positions[currentFrame] + NOTE_CONTAINER_MARGIN;
         const pastHitNote = currentFrame >= note.endFrame - 10;
         // if we moved past the hit note location, make sure we remove it from our active notes
-        if (pastHitNote && this.activeNotes.indexOf(note.hitTime) == -1) {
+        if (pastHitNote && this.activeNotes.indexOf(note.hitTime) != -1) {
           this.activeNotes.splice(this.activeNotes.indexOf(note.hitTime), 1);
         }
         const noteElement = (

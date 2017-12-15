@@ -52,7 +52,7 @@ export class LevelSelector extends React.Component {
 
   renderHighScores() {
     const songName = this.props.songLibrary[this.state.selectedLevel].songName;
-    this.props.getScores(songName, 7, (highScores) => {
+    this.props.getScores(songName, 10, (highScores) => {
       this.setState({
         loadingHighScores: false,
       }, () => {

@@ -11,6 +11,7 @@ const SHELTER = require('../sheetmusic/shelter.json');
 const HIKARUNARA = require('../sheetmusic/hikarunara.json');
 const THISGAME = require('../sheetmusic/thisgame.json');
 const FLYHIGH = require('../sheetmusic/flyhigh.json');
+const NARUTO = require('../sheetmusic/naruto.json');
 
 const SCORE_VALUES = require('../scoreconstants.json');
 
@@ -33,6 +34,16 @@ const SONGS = [
     albumArtwork: 'src/assets/shigatsu.png',
     sourceAnime: 'Your Lie In April',
     difficulty: 'Easy',
+    isAvailable: true,
+  },
+  {
+    songName: 'Silhouette',
+    songArtist: 'KANA-BOON',
+    audioFile: 'src/assets/naruto16.mp3',
+    sheetMusic: NARUTO,
+    albumArtwork: 'src/assets/naruto.png',
+    sourceAnime: 'Naruto Op 16',
+    difficulty: 'Medium',
     isAvailable: true,
   },
   {
@@ -176,6 +187,23 @@ export class App extends React.Component {
           activeKeys: newActiveKeys,
         });
       }
+    }
+
+    if (this.state.editorMode) {
+      const song = document.getElementById('now-playing-song');
+      song.controls = this.state.editorMode;
+      if (!song) {
+        return;
+      }
+      this.setState({
+        songElement: song,
+        currentSongTime: Math.floor(song.currentTime),
+        currentSongDuration: Math.floor(song.duration),
+      }, () => {
+        this.mapFrames();
+
+        window.requestAnimationFrame(this.gameLoop.bind(this));
+      });
     }
   }
 
@@ -441,6 +469,7 @@ export class App extends React.Component {
     if (this.state.songElement) {
       this.state.songElement.currentTime = 0;
       this.setState({
+        currentSongTime: 0,
         initialFrames: 0,
         scores: {
           'perfect': 0,
