@@ -44,7 +44,8 @@ export class LevelSelector extends React.Component {
           onMouseLeave={this.mouseExitLevel.bind(this)}
           selectLevel={this.selectLevel.bind(this, index)}
           isHovered={this.state.hoveredLevel == index}
-          isSelected={this.state.selectedLevel == index}/>
+          isSelected={this.state.selectedLevel == index}
+          audioFile={this.props.songLibrary[index].audioFile}/>
       );
     });
     return levels;

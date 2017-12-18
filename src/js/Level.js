@@ -1,6 +1,6 @@
 const React = require('react');
 
-const THROTTLE_TIMER = 300;
+const THROTTLE_TIMER = 0;
 
 export class Level extends React.Component {
   constructor(props) {
@@ -11,8 +11,8 @@ export class Level extends React.Component {
   }
 
   componentWillUpdate(nextProps, nextState) {
-    let song = document.getElementById('level-audio-' + this.props.levelIndex);
-    if (nextProps.isHovered && !this.props.isHovered) {
+    let song = this.props.audioFile;
+    if (nextProps.isSelected && !this.props.isSelected) {
       this.setState({
         queuedToPlay: true,
       });
@@ -23,7 +23,7 @@ export class Level extends React.Component {
         song.currentTime = 0;
         song.play();
       }, THROTTLE_TIMER);
-    } else if (!nextProps.isHovered && this.props.isHovered) {
+    } else if (!nextProps.isSelected && this.props.isSelected) {
       this.setState({
         queuedToPlay: false,
       });
@@ -44,9 +44,6 @@ export class Level extends React.Component {
       onMouseEnter={this.props.onMouseEnter}
       onMouseLeave={this.props.onMouseLeave}
       onClick={this.props.selectLevel}>
-        <audio id={'level-audio-' + this.props.levelIndex}>
-          <source src={this.props.level.audioFile} type="audio/mpeg"/>
-        </audio>
         <div className='level-album-artwork'>
           <img src={this.props.level.albumArtwork}/>
         </div>

@@ -39959,7 +39959,7 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 
 var React = require('react');
 
-var THROTTLE_TIMER = 300;
+var THROTTLE_TIMER = 0;
 
 var Level = exports.Level = function (_React$Component) {
   _inherits(Level, _React$Component);
@@ -39980,8 +39980,8 @@ var Level = exports.Level = function (_React$Component) {
     value: function componentWillUpdate(nextProps, nextState) {
       var _this2 = this;
 
-      var song = document.getElementById('level-audio-' + this.props.levelIndex);
-      if (nextProps.isHovered && !this.props.isHovered) {
+      var song = this.props.audioFile;
+      if (nextProps.isSelected && !this.props.isSelected) {
         this.setState({
           queuedToPlay: true
         });
@@ -39992,7 +39992,7 @@ var Level = exports.Level = function (_React$Component) {
           song.currentTime = 0;
           song.play();
         }, THROTTLE_TIMER);
-      } else if (!nextProps.isHovered && this.props.isHovered) {
+      } else if (!nextProps.isSelected && this.props.isSelected) {
         this.setState({
           queuedToPlay: false
         });
@@ -40015,11 +40015,6 @@ var Level = exports.Level = function (_React$Component) {
           onMouseEnter: this.props.onMouseEnter,
           onMouseLeave: this.props.onMouseLeave,
           onClick: this.props.selectLevel },
-        React.createElement(
-          'audio',
-          { id: 'level-audio-' + this.props.levelIndex },
-          React.createElement('source', { src: this.props.level.audioFile, type: 'audio/mpeg' })
-        ),
         React.createElement(
           'div',
           { className: 'level-album-artwork' },
@@ -40123,7 +40118,8 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
           onMouseLeave: _this3.mouseExitLevel.bind(_this3),
           selectLevel: _this3.selectLevel.bind(_this3, index),
           isHovered: _this3.state.hoveredLevel == index,
-          isSelected: _this3.state.selectedLevel == index }));
+          isSelected: _this3.state.selectedLevel == index,
+          audioFile: _this3.props.songLibrary[index].audioFile }));
       });
       return levels;
     }
@@ -40615,7 +40611,7 @@ var SCORE_VALUES = require('../scoreconstants.json');
 var SONGS = [{
   songName: 'Gamers!',
   songArtist: 'Hisako Kanemoto',
-  audioFile: 'src/assets/gamers.mp3',
+  audioFile: new Audio('src/assets/gamers.mp3'),
   sheetMusic: GAMERS,
   albumArtwork: 'src/assets/gamers.png',
   sourceAnime: 'Gamers!',
@@ -40624,7 +40620,7 @@ var SONGS = [{
 }, {
   songName: 'Hikaru Nara',
   songArtist: 'Goose House',
-  audioFile: 'src/assets/your_lie_in_april_op.mp3',
+  audioFile: new Audio('src/assets/your_lie_in_april_op.mp3'),
   sheetMusic: HIKARUNARA,
   albumArtwork: 'src/assets/shigatsu.png',
   sourceAnime: 'Your Lie In April',
@@ -40633,7 +40629,7 @@ var SONGS = [{
 }, {
   songName: 'Silhouette',
   songArtist: 'KANA-BOON',
-  audioFile: 'src/assets/naruto16.mp3',
+  audioFile: new Audio('src/assets/naruto16.mp3'),
   sheetMusic: NARUTO,
   albumArtwork: 'src/assets/naruto.png',
   sourceAnime: 'Naruto Op 16',
@@ -40642,7 +40638,7 @@ var SONGS = [{
 }, {
   songName: 'Shelter',
   songArtist: 'Porter Robinson',
-  audioFile: 'src/assets/shelter.mp3',
+  audioFile: new Audio('src/assets/shelter.mp3'),
   sheetMusic: SHELTER,
   albumArtwork: 'src/assets/shelter.png',
   sourceAnime: 'Shelter',
@@ -40651,7 +40647,7 @@ var SONGS = [{
 }, {
   songName: 'This Game',
   songArtist: 'Konomi Suzuki',
-  audioFile: 'src/assets/nogamenolife.mp3',
+  audioFile: new Audio('src/assets/nogamenolife.mp3'),
   sheetMusic: THISGAME,
   albumArtwork: 'src/assets/nogamenolife.png',
   sourceAnime: 'No Game No Life',
@@ -40660,7 +40656,7 @@ var SONGS = [{
 }, {
   songName: 'Fly High!!',
   songArtist: 'Burnout Syndromes',
-  audioFile: 'src/assets/flyhigh.mp3',
+  audioFile: new Audio('src/assets/flyhigh.mp3'),
   sheetMusic: FLYHIGH,
   albumArtwork: 'src/assets/haikyuu.png',
   sourceAnime: 'Haikyuu!',
@@ -40675,7 +40671,7 @@ var NOTE_START_LOCATION = -130;
 var NOTE_HEIGHT = 26;
 var NOTE_END_LOCATION = 540;
 var INITIAL_DELAY = 200;
-var BUFFER_DELAY = 6;
+// const BUFFER_DELAY = 6;
 var DEFAULT_NAME = 'Unnamed';
 
 var KEYMAP = {
@@ -40746,6 +40742,13 @@ var App = exports.App = function (_React$Component) {
   }
 
   _createClass(App, [{
+    key: 'componentWillMount',
+    value: function componentWillMount() {
+      SONGS.forEach(function (song) {
+        song.audioFile.preload = "auto";
+      });
+    }
+  }, {
     key: 'componentDidMount',
     value: function componentDidMount() {
       var _this2 = this;
@@ -40813,7 +40816,7 @@ var App = exports.App = function (_React$Component) {
       if (this.state.currentSongIndex > -1 && prevState.currentSongIndex == -1 || this.state.currentSongIndex > -1 && !this.state.songEnded && prevState.songEnded) {
         var _ret = function () {
           // const song = new Audio(SONGS[this.state.currentSongIndex].audioFile);
-          var song = document.getElementById('now-playing-song');
+          var song = SONGS[_this3.state.currentSongIndex].audioFile;
           song.onended = function () {
             var finalScore = 0;
             for (var scoreTier in _this3.state.scores) {
@@ -40925,7 +40928,7 @@ var App = exports.App = function (_React$Component) {
         var initialFrames = this.state.initialFrames;
         if (this.state.initialFrames <= INITIAL_DELAY) {
           initialFrames++;
-          if (this.state.initialFrames == INITIAL_DELAY - BUFFER_DELAY && this.state.songElement.currentTime == 0) {
+          if (this.state.initialFrames == INITIAL_DELAY && this.state.songElement.currentTime == 0) {
             this.state.songElement.play();
           }
         }
@@ -41059,6 +41062,8 @@ var App = exports.App = function (_React$Component) {
   }, {
     key: '_selectLevel',
     value: function _selectLevel(index) {
+      SONGS[index].audioFile.pause();
+      SONGS[index].audioFile.currentTime = 0;
       this.setState({
         currentSongIndex: index,
         isLevelSelected: true

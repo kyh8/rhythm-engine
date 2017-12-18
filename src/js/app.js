@@ -19,7 +19,7 @@ const SONGS = [
   {
     songName: 'Gamers!',
     songArtist: 'Hisako Kanemoto',
-    audioFile: 'src/assets/gamers.mp3',
+    audioFile: new Audio('src/assets/gamers.mp3'),
     sheetMusic: GAMERS,
     albumArtwork: 'src/assets/gamers.png',
     sourceAnime: 'Gamers!',
@@ -29,7 +29,7 @@ const SONGS = [
   {
     songName: 'Hikaru Nara',
     songArtist: 'Goose House',
-    audioFile: 'src/assets/your_lie_in_april_op.mp3',
+    audioFile: new Audio('src/assets/your_lie_in_april_op.mp3'),
     sheetMusic: HIKARUNARA,
     albumArtwork: 'src/assets/shigatsu.png',
     sourceAnime: 'Your Lie In April',
@@ -39,7 +39,7 @@ const SONGS = [
   {
     songName: 'Silhouette',
     songArtist: 'KANA-BOON',
-    audioFile: 'src/assets/naruto16.mp3',
+    audioFile: new Audio('src/assets/naruto16.mp3'),
     sheetMusic: NARUTO,
     albumArtwork: 'src/assets/naruto.png',
     sourceAnime: 'Naruto Op 16',
@@ -49,7 +49,7 @@ const SONGS = [
   {
     songName: 'Shelter',
     songArtist: 'Porter Robinson',
-    audioFile: 'src/assets/shelter.mp3',
+    audioFile: new Audio('src/assets/shelter.mp3'),
     sheetMusic: SHELTER,
     albumArtwork: 'src/assets/shelter.png',
     sourceAnime: 'Shelter',
@@ -59,7 +59,7 @@ const SONGS = [
   {
     songName: 'This Game',
     songArtist: 'Konomi Suzuki',
-    audioFile: 'src/assets/nogamenolife.mp3',
+    audioFile: new Audio('src/assets/nogamenolife.mp3'),
     sheetMusic: THISGAME,
     albumArtwork: 'src/assets/nogamenolife.png',
     sourceAnime: 'No Game No Life',
@@ -69,7 +69,7 @@ const SONGS = [
   {
     songName: 'Fly High!!',
     songArtist: 'Burnout Syndromes',
-    audioFile: 'src/assets/flyhigh.mp3',
+    audioFile: new Audio('src/assets/flyhigh.mp3'),
     sheetMusic: FLYHIGH,
     albumArtwork: 'src/assets/haikyuu.png',
     sourceAnime: 'Haikyuu!',
@@ -85,7 +85,7 @@ const NOTE_START_LOCATION = -130;
 const NOTE_HEIGHT = 26;
 const NOTE_END_LOCATION = 540;
 const INITIAL_DELAY = 200;
-const BUFFER_DELAY = 6;
+// const BUFFER_DELAY = 6;
 const DEFAULT_NAME = 'Unnamed';
 
 const KEYMAP = {
@@ -148,7 +148,13 @@ export class App extends React.Component {
      messagingSenderId: "173306413344"
     };
     Firebase.initializeApp(config);
-}
+  }
+
+  componentWillMount() {
+    SONGS.forEach((song) => {
+      song.audioFile.preload = "auto";
+    });
+  }
 
   componentDidMount() {
     window.onkeypress = (e) => {
@@ -213,7 +219,7 @@ export class App extends React.Component {
       || this.state.currentSongIndex > -1 && !this.state.songEnded && prevState.songEnded
     ) {
       // const song = new Audio(SONGS[this.state.currentSongIndex].audioFile);
-      const song = document.getElementById('now-playing-song');
+      const song = SONGS[this.state.currentSongIndex].audioFile;
       song.onended = () => {
         let finalScore = 0;
         for (let scoreTier in this.state.scores) {
@@ -316,7 +322,7 @@ export class App extends React.Component {
       let initialFrames = this.state.initialFrames;
       if (this.state.initialFrames <= INITIAL_DELAY) {
         initialFrames++;
-        if (this.state.initialFrames == INITIAL_DELAY - BUFFER_DELAY && this.state.songElement.currentTime == 0) {
+        if (this.state.initialFrames == INITIAL_DELAY && this.state.songElement.currentTime == 0) {
           this.state.songElement.play();
         }
       }
@@ -447,6 +453,8 @@ export class App extends React.Component {
   }
 
   _selectLevel(index) {
+    SONGS[index].audioFile.pause();
+    SONGS[index].audioFile.currentTime = 0;
     this.setState({
       currentSongIndex: index,
       isLevelSelected: true,
