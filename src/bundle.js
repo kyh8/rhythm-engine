@@ -40671,7 +40671,7 @@ var NOTE_START_LOCATION = -130;
 var NOTE_HEIGHT = 26;
 var NOTE_END_LOCATION = 540;
 var INITIAL_DELAY = 200;
-// const BUFFER_DELAY = 6;
+var BUFFER_DELAY = 6;
 var DEFAULT_NAME = 'Unnamed';
 
 var KEYMAP = {
@@ -40928,11 +40928,12 @@ var App = exports.App = function (_React$Component) {
         var initialFrames = this.state.initialFrames;
         if (this.state.initialFrames <= INITIAL_DELAY) {
           initialFrames++;
-          if (this.state.initialFrames == INITIAL_DELAY && this.state.songElement.currentTime == 0) {
+          if (this.state.initialFrames == INITIAL_DELAY - BUFFER_DELAY && this.state.songElement.currentTime == 0) {
             this.state.songElement.play();
           }
         }
         var newFrame = initialFrames + Math.floor(this.state.songElement.currentTime * MS_PER_SEC / FRAME_RATE);
+        console.log('new frame', newFrame);
         this.setState({
           currentSongTime: newTime,
           currentFrame: newFrame,
@@ -41026,7 +41027,6 @@ var App = exports.App = function (_React$Component) {
       for (var noteHitTime in sheetMusic) {
         _loop(noteHitTime);
       }
-      console.log('sheet music', noteMap);
 
       this.setState({
         noteMap: noteMap
@@ -41357,11 +41357,11 @@ var App = exports.App = function (_React$Component) {
               )
             )
           ),
-          React.createElement(
+          this.state.editorMode ? React.createElement(
             'audio',
             { id: 'now-playing-song' },
             React.createElement('source', { src: SONGS[this.state.currentSongIndex].audioFile, type: 'audio/mpeg' })
-          ),
+          ) : null,
           this.state.editorMode ? React.createElement(
             'div',
             { className: 'buttons' },

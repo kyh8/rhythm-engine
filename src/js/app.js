@@ -85,7 +85,7 @@ const NOTE_START_LOCATION = -130;
 const NOTE_HEIGHT = 26;
 const NOTE_END_LOCATION = 540;
 const INITIAL_DELAY = 200;
-// const BUFFER_DELAY = 6;
+const BUFFER_DELAY = 6;
 const DEFAULT_NAME = 'Unnamed';
 
 const KEYMAP = {
@@ -322,13 +322,14 @@ export class App extends React.Component {
       let initialFrames = this.state.initialFrames;
       if (this.state.initialFrames <= INITIAL_DELAY) {
         initialFrames++;
-        if (this.state.initialFrames == INITIAL_DELAY && this.state.songElement.currentTime == 0) {
+        if (this.state.initialFrames == INITIAL_DELAY - BUFFER_DELAY && this.state.songElement.currentTime == 0) {
           this.state.songElement.play();
         }
       }
       const newFrame = initialFrames + Math.floor((
         this.state.songElement.currentTime
       ) * MS_PER_SEC / FRAME_RATE);
+      console.log('new frame', newFrame);
       this.setState({
         currentSongTime: newTime,
         currentFrame: newFrame,
@@ -418,7 +419,6 @@ export class App extends React.Component {
         noteMap[track] = trackPositionings;
       });
     }
-    console.log('sheet music', noteMap);
 
     this.setState({
       noteMap: noteMap,
@@ -692,9 +692,14 @@ export class App extends React.Component {
                   <div className='score'>{this.state.scores.miss}</div>
                 </div>
               </div>
-              <audio id={'now-playing-song'}>
-                <source src={SONGS[this.state.currentSongIndex].audioFile} type="audio/mpeg"/>
-              </audio>
+              {
+                this.state.editorMode
+                ? (
+                  <audio id={'now-playing-song'}>
+                    <source src={SONGS[this.state.currentSongIndex].audioFile} type="audio/mpeg"/>
+                  </audio>
+                ): null
+              }
               {
                 this.state.editorMode ? (
                   <div className='buttons'>

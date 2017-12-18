@@ -6,7 +6,7 @@ export class Level extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      queuedToPlay: false
+      queuedToPlay: false,
     };
   }
 
