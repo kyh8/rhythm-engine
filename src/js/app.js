@@ -12,6 +12,9 @@ const HIKARUNARA = require('../sheetmusic/hikarunara.json');
 const THISGAME = require('../sheetmusic/thisgame.json');
 const FLYHIGH = require('../sheetmusic/flyhigh.json');
 const NARUTO = require('../sheetmusic/naruto.json');
+const BRAVESHINE = require('../sheetmusic/braveshine.json');
+const OPM = require('../sheetmusic/onepunchman.json');
+const ATTACKONTITAN = ('../sheetmusic/attackontitan.json');
 
 const SCORE_VALUES = require('../scoreconstants.json');
 
@@ -72,6 +75,36 @@ const SONGS = [
     audioFile: new Audio('src/assets/flyhigh.mp3'),
     sheetMusic: FLYHIGH,
     albumArtwork: 'src/assets/haikyuu.png',
+    sourceAnime: 'Haikyuu!',
+    difficulty: 'Hard',
+    isAvailable: false,
+  },
+  {
+    songName: 'Brave Shine',
+    songArtist: 'Aimer',
+    audioFile: new Audio('src/assets/fateubw.mp3'),
+    sheetMusic: BRAVESHINE,
+    albumArtwork: 'src/assets/fateubw.png',
+    sourceAnime: 'Fate Stay Night Unlimited Bladeworks',
+    difficulty: 'Hard',
+    isAvailable: false,
+  },
+  {
+    songName: 'The Hero!!',
+    songArtist: 'JAM Project',
+    audioFile: new Audio('src/assets/opm.mp3'),
+    sheetMusic: FLYHIGH,
+    albumArtwork: 'src/assets/opm.png',
+    sourceAnime: 'One Punch Man',
+    difficulty: 'Hard',
+    isAvailable: false,
+  },
+  {
+    songName: 'Guren no Yumiya',
+    songArtist: 'Linked Horizon',
+    audioFile: new Audio('src/assets/attackontitan.mp3'),
+    sheetMusic: FLYHIGH,
+    albumArtwork: 'src/assets/attack-on-titan.png',
     sourceAnime: 'Haikyuu!',
     difficulty: 'Hard',
     isAvailable: false,
