@@ -1,7 +1,7 @@
 {
-  "name": "stickrpg",
+  "name": "rhythm",
   "version": "1.0.0",
-  "description": "A game similar to stick rpg",
+  "description": "A rhythm game",
   "main": "main.js",
   "scripts": {
     "watch": "watchify -t [ babelify ] src/main.js -o src/bundle.js -v",
