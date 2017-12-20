@@ -113,39 +113,44 @@ export class LevelSelector extends React.Component {
           <div className='selected-level-info'>
             <div className='selected-level-album-artwork'>
               <img src={albumArtwork}/>
-            </div>
-            <div className='selected-level-song-info unselectable'>
-              <div className='selected-level-song-name'>
-                {songName}
-              </div>
-              <div className='selected-level-song-artist'>
-                {songArtist}
+                {
+                  isAvailable
+                  ? (
+                    <div
+                      className='album-artwork-overlay'
+                      onClick={this.props.selectLevel.bind(this, this.state.selectedLevel)}>
+                      <div className='selected-level-play-button'>
+                        <i className='fa fa-play-circle' aria-hidden='true'/>
+                      </div>
+                    </div>
+
+                  ): null
+                }
+              <div className='album-artwork-info-overlay'>
+                <div className='selected-level-song-info unselectable'>
+                  <div className='selected-level-song-name'>
+                    {songName}
+                  </div>
+                  <div className='selected-level-song-artist'>
+                    {songArtist}
+                  </div>
+                  <div className={'source-anime'}>
+                    <span>{'Anime:'}</span>
+                    <span className='source-anime-name'>{sourceAnime}</span>
+                  </div>
+                </div>
               </div>
             </div>
             <div className='selected-level-metadata'>
-              <div className={'difficulty-tag'}>
+              <div className={'difficulty-tag ' + songDifficulty.toLowerCase()}>
                 {songDifficulty.toUpperCase()}
-              </div>
-              <div className={'divider'}>
-                &middot;
-              </div>
-              <div className={'source-anime'}>
-                {sourceAnime}
               </div>
             </div>
             {
-              isAvailable
+              !isAvailable
               ? (
-                <div className='selected-level-buttons'>
-                  <div
-                    className='selected-level-play-button'
-                    onClick={this.props.selectLevel.bind(this, this.state.selectedLevel)}>
-                    <i className='fa fa-play-circle' aria-hidden='true'/>
-                  </div>
-                </div>
-              ): (
                 <div className='coming-soon'>COMING SOON</div>
-              )
+              ): null
             }
           </div>
           {

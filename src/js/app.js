@@ -45,7 +45,7 @@ const SONGS = [
     audioFile: new Audio('src/assets/naruto16.mp3'),
     sheetMusic: NARUTO,
     albumArtwork: 'src/assets/naruto.png',
-    sourceAnime: 'Naruto Op 16',
+    sourceAnime: 'Naruto',
     difficulty: 'Medium',
     isAvailable: true,
   },

@@ -40196,20 +40196,49 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
             React.createElement(
               'div',
               { className: 'selected-level-album-artwork' },
-              React.createElement('img', { src: albumArtwork })
-            ),
-            React.createElement(
-              'div',
-              { className: 'selected-level-song-info unselectable' },
+              React.createElement('img', { src: albumArtwork }),
+              isAvailable ? React.createElement(
+                'div',
+                {
+                  className: 'album-artwork-overlay',
+                  onClick: this.props.selectLevel.bind(this, this.state.selectedLevel) },
+                React.createElement(
+                  'div',
+                  { className: 'selected-level-play-button' },
+                  React.createElement('i', { className: 'fa fa-play-circle', 'aria-hidden': 'true' })
+                )
+              ) : null,
               React.createElement(
                 'div',
-                { className: 'selected-level-song-name' },
-                songName
-              ),
-              React.createElement(
-                'div',
-                { className: 'selected-level-song-artist' },
-                songArtist
+                { className: 'album-artwork-info-overlay' },
+                React.createElement(
+                  'div',
+                  { className: 'selected-level-song-info unselectable' },
+                  React.createElement(
+                    'div',
+                    { className: 'selected-level-song-name' },
+                    songName
+                  ),
+                  React.createElement(
+                    'div',
+                    { className: 'selected-level-song-artist' },
+                    songArtist
+                  ),
+                  React.createElement(
+                    'div',
+                    { className: 'source-anime' },
+                    React.createElement(
+                      'span',
+                      null,
+                      'Anime:'
+                    ),
+                    React.createElement(
+                      'span',
+                      { className: 'source-anime-name' },
+                      sourceAnime
+                    )
+                  )
+                )
               )
             ),
             React.createElement(
@@ -40217,35 +40246,15 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
               { className: 'selected-level-metadata' },
               React.createElement(
                 'div',
-                { className: 'difficulty-tag' },
+                { className: 'difficulty-tag ' + songDifficulty.toLowerCase() },
                 songDifficulty.toUpperCase()
-              ),
-              React.createElement(
-                'div',
-                { className: 'divider' },
-                '\xB7'
-              ),
-              React.createElement(
-                'div',
-                { className: 'source-anime' },
-                sourceAnime
               )
             ),
-            isAvailable ? React.createElement(
-              'div',
-              { className: 'selected-level-buttons' },
-              React.createElement(
-                'div',
-                {
-                  className: 'selected-level-play-button',
-                  onClick: this.props.selectLevel.bind(this, this.state.selectedLevel) },
-                React.createElement('i', { className: 'fa fa-play-circle', 'aria-hidden': 'true' })
-              )
-            ) : React.createElement(
+            !isAvailable ? React.createElement(
               'div',
               { className: 'coming-soon' },
               'COMING SOON'
-            )
+            ) : null
           ),
           isAvailable ? React.createElement(
             'div',
@@ -40635,7 +40644,7 @@ var SONGS = [{
   audioFile: new Audio('src/assets/naruto16.mp3'),
   sheetMusic: NARUTO,
   albumArtwork: 'src/assets/naruto.png',
-  sourceAnime: 'Naruto Op 16',
+  sourceAnime: 'Naruto',
   difficulty: 'Medium',
   isAvailable: true
 }, {
