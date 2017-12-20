@@ -51,7 +51,7 @@ audio {
   justify-content: center;
   align-items: center;
   flex-direction: column;
-  padding: 8px;
+  padding: 8px 16px;
   border-radius: 8px;
   background-color: rgba(0,0,0,0.6);
 }
