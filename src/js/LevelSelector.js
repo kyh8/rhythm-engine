@@ -53,7 +53,7 @@ export class LevelSelector extends React.Component {
 
   renderHighScores() {
     const songName = this.props.songLibrary[this.state.selectedLevel].songName;
-    this.props.getScores(songName, 10, (highScores) => {
+    this.props.getScores(songName, 3, (highScores) => {
       this.setState({
         loadingHighScores: false,
       }, () => {
@@ -64,15 +64,18 @@ export class LevelSelector extends React.Component {
             <div
               className={
                 index == 0
-                ? 'highest high-score top-' + index
-                : 'high-score top-' + index
+                ? 'highest high-score'
+                : 'high-score'
               }
               key={'high-score-' + user.data().username + '-' + index}>
-              <div className='high-score-value'>
-                {(index + 1) + '. ' + user.data().score}
-              </div>
               <div className='high-score-owner'>
                 {user.data().username}
+              </div>
+              <div className='high-score-value'>
+                {user.data().score}
+              </div>
+              <div className='high-score-place'>
+                {index + 1}
               </div>
             </div>
           );
@@ -147,30 +150,24 @@ export class LevelSelector extends React.Component {
               </div>
             </div>
             {
-              !isAvailable
+              isAvailable
               ? (
+                <div className='selected-level-high-scores'>
+                  {
+                    this.state.loadingHighScores
+                    ? (
+                        <div className='high-scores-loading'>
+                          <i className='fa fa-refresh fa-2x fa-fw loading'/>
+                        </div>
+                    ): this.state.highScores
+                  }
+                </div>
+              )
+              : (
                 <div className='coming-soon'>COMING SOON</div>
-              ): null
+              )
             }
           </div>
-          {
-            isAvailable
-            ? (
-              <div className='selected-level-high-scores'>
-                <div className='selected-level-high-scores-label'>
-                  {'HIGH SCORES'}
-                </div>
-                {
-                  this.state.loadingHighScores
-                  ? (
-                      <div className='high-scores-loading'>
-                        <i className='fa fa-refresh fa-2x fa-fw loading'/>
-                      </div>
-                  ): this.state.highScores
-                }
-              </div>
-            ): null
-          }
         </div>
       </div>
     );

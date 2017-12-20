@@ -40129,7 +40129,7 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
       var _this4 = this;
 
       var songName = this.props.songLibrary[this.state.selectedLevel].songName;
-      this.props.getScores(songName, 10, function (highScores) {
+      this.props.getScores(songName, 3, function (highScores) {
         _this4.setState({
           loadingHighScores: false
         }, function () {
@@ -40139,17 +40139,22 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
             highScoreElements.push(React.createElement(
               'div',
               {
-                className: index == 0 ? 'highest high-score top-' + index : 'high-score top-' + index,
+                className: index == 0 ? 'highest high-score' : 'high-score',
                 key: 'high-score-' + user.data().username + '-' + index },
-              React.createElement(
-                'div',
-                { className: 'high-score-value' },
-                index + 1 + '. ' + user.data().score
-              ),
               React.createElement(
                 'div',
                 { className: 'high-score-owner' },
                 user.data().username
+              ),
+              React.createElement(
+                'div',
+                { className: 'high-score-value' },
+                user.data().score
+              ),
+              React.createElement(
+                'div',
+                { className: 'high-score-place' },
+                index + 1
               )
             ));
             index++;
@@ -40250,26 +40255,20 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
                 songDifficulty.toUpperCase()
               )
             ),
-            !isAvailable ? React.createElement(
+            isAvailable ? React.createElement(
+              'div',
+              { className: 'selected-level-high-scores' },
+              this.state.loadingHighScores ? React.createElement(
+                'div',
+                { className: 'high-scores-loading' },
+                React.createElement('i', { className: 'fa fa-refresh fa-2x fa-fw loading' })
+              ) : this.state.highScores
+            ) : React.createElement(
               'div',
               { className: 'coming-soon' },
               'COMING SOON'
-            ) : null
-          ),
-          isAvailable ? React.createElement(
-            'div',
-            { className: 'selected-level-high-scores' },
-            React.createElement(
-              'div',
-              { className: 'selected-level-high-scores-label' },
-              'HIGH SCORES'
-            ),
-            this.state.loadingHighScores ? React.createElement(
-              'div',
-              { className: 'high-scores-loading' },
-              React.createElement('i', { className: 'fa fa-refresh fa-2x fa-fw loading' })
-            ) : this.state.highScores
-          ) : null
+            )
+          )
         )
       );
     }
@@ -40680,7 +40679,7 @@ var SONGS = [{
   audioFile: new Audio('src/assets/fateubw.mp3'),
   sheetMusic: BRAVESHINE,
   albumArtwork: 'src/assets/fateubw.png',
-  sourceAnime: 'Fate Stay Night Unlimited Bladeworks',
+  sourceAnime: 'Fate Stay Night: Unlimited Bladeworks',
   difficulty: 'Hard',
   isAvailable: false
 }, {
@@ -40698,7 +40697,7 @@ var SONGS = [{
   audioFile: new Audio('src/assets/attackontitan.mp3'),
   sheetMusic: FLYHIGH,
   albumArtwork: 'src/assets/attack-on-titan.png',
-  sourceAnime: 'Haikyuu!',
+  sourceAnime: 'Attack On Titan',
   difficulty: 'Hard',
   isAvailable: false
 }];
@@ -41320,14 +41319,14 @@ var App = exports.App = function (_React$Component) {
           ) : null,
           React.createElement(
             'div',
-            { className: 'now-playing-song-name' },
+            { className: 'now-playing' },
             React.createElement(
               'div',
               { className: 'now-playing-label' },
               React.createElement(
                 'div',
                 null,
-                React.createElement('i', { className: 'fa fa-play-circle', 'aria-hidden': 'true' })
+                React.createElement('i', { className: 'fa fa-volume-up', 'aria-hidden': 'true' })
               ),
               React.createElement(
                 'div',
@@ -41338,7 +41337,16 @@ var App = exports.App = function (_React$Component) {
             React.createElement(
               'div',
               { className: 'now-playing-song-label' },
-              SONGS[this.state.currentSongIndex].songName.toUpperCase() + ' BY ' + SONGS[this.state.currentSongIndex].songArtist.toUpperCase()
+              React.createElement(
+                'div',
+                { className: 'now-playing-song-label-name' },
+                SONGS[this.state.currentSongIndex].songName
+              ),
+              React.createElement(
+                'div',
+                { className: 'now-playing-song-label-artist' },
+                SONGS[this.state.currentSongIndex].songArtist
+              )
             )
           ),
           React.createElement(

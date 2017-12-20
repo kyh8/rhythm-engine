@@ -85,7 +85,7 @@ const SONGS = [
     audioFile: new Audio('src/assets/fateubw.mp3'),
     sheetMusic: BRAVESHINE,
     albumArtwork: 'src/assets/fateubw.png',
-    sourceAnime: 'Fate Stay Night Unlimited Bladeworks',
+    sourceAnime: 'Fate Stay Night: Unlimited Bladeworks',
     difficulty: 'Hard',
     isAvailable: false,
   },
@@ -105,7 +105,7 @@ const SONGS = [
     audioFile: new Audio('src/assets/attackontitan.mp3'),
     sheetMusic: FLYHIGH,
     albumArtwork: 'src/assets/attack-on-titan.png',
-    sourceAnime: 'Haikyuu!',
+    sourceAnime: 'Attack On Titan',
     difficulty: 'Hard',
     isAvailable: false,
   },
@@ -689,21 +689,22 @@ export class App extends React.Component {
                   </div>
                 ) : null
               }
-              <div className='now-playing-song-name'>
+              <div className='now-playing'>
                 <div className='now-playing-label'>
                   <div>
-                    <i className="fa fa-play-circle" aria-hidden="true"/>
+                    <i className="fa fa-volume-up" aria-hidden="true"/>
                   </div>
                   <div>
                     {'Now Playing'}
                   </div>
                 </div>
                 <div className='now-playing-song-label'>
-                  {
-                    SONGS[this.state.currentSongIndex].songName.toUpperCase()
-                    + ' BY '
-                    + SONGS[this.state.currentSongIndex].songArtist.toUpperCase()
-                  }
+                  <div className='now-playing-song-label-name'>
+                    {SONGS[this.state.currentSongIndex].songName}
+                  </div>
+                  <div className='now-playing-song-label-artist'>
+                    {SONGS[this.state.currentSongIndex].songArtist}
+                  </div>
                 </div>
               </div>
               <div className='game-content-container'>

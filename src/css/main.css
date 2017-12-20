@@ -39,25 +39,21 @@ audio {
   flex-direction: column;
   width: 100%;
   height: 100%;
+  background: no-repeat center center fixed;
+  background-size: cover;
+  background-image: url('../assets/game-background.png');
 }
 
-.now-playing-song-name {
-  font-size: 36px;
-  height: 40px;
+.now-playing {
+  text-shadow: 0 0 4px black;
   color: white;
   display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
-}
-
-.now-playing-song-time {
-  font-size: 12px;
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-top: 10px;
-  width: 500px;
+  padding: 8px;
+  border-radius: 8px;
+  background-color: rgba(0,0,0,0.6);
 }
 
 .now-playing-label {
@@ -65,16 +61,27 @@ audio {
   display: flex;
   justify-content: center;
   align-items: center;
+  font-size: 16px;
+  color: antiquewhite;
+}
+
+.now-playing-song-label {
+  display: flex;
+  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+}
+
+.now-playing-song-label-name {
+  font-size: 36px;
+}
+
+.now-playing-song-label-artist {
+  font-size: 20px;
 }
 
 .now-playing-label div:last-child {
   margin-left: 10px;
-}
-
-.now-playing-song-label {
-  color: #bdbdbd;
-  font-size: 14px;
-  margin-top: 20px;
 }
 
 .game-content-container {
@@ -584,7 +591,7 @@ audio {
   align-items: center;
   width: 80px;
   height: 80px;
-  font-size: 64px;
+  font-size: 80px;
   color: white;
 }
 
@@ -815,51 +822,52 @@ audio {
 
 .selected-level-high-scores {
   display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-  flex-direction: column;
-  width: 320px;
-  height: 100%;
-  background-color: rgba(0,0,0,0.8);
-}
-
-.selected-level-high-scores-label {
-  color: white;
-  padding: 10px;
-  width: 100%;
-  font-size: 24px;
-  margin-bottom: 10px;
-  background-color: rgba(25,83,140,0.6);
-  text-align: center;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
 }
 
 .high-score {
-  font-size: 24px;
-  color: white;
+  color: black;
   display: flex;
-  justify-content: flex-start;
-  opacity: 0.3;
-  cursor: default;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   transition: 0.2s all ease;
-  padding-left: 10px;
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  background-color: rgba(255,255,255,0.6);
+  margin-left: 20px;
+  border: 1px solid white;
+  position: relative;
 }
 
 .high-score-owner {
-  margin-left: 20px;
-  /*color: rgb(0,122,255);*/
+  font-size: 14px;
 }
 
 .high-score-value {
-  font-weight: bold;
+  font-size: 28px;
 }
 
-.high-score.highest,
-.high-score:hover {
-  opacity: 1;
+.high-score:first-child {
+  margin-left: 0;
 }
 
-.high-score.highest {
-  font-size: 36px;
+.high-score-place {
+  position: absolute;
+  bottom: 0px;
+  right: 0px;
+  width: 24px;
+  height: 24px;
+  color: white;
+  border-radius: 50%;
+  background-color: rgb(0,122,255);
+  box-shadow: 0 0 2px black;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .selected-level-playable {
@@ -871,21 +879,20 @@ audio {
 
 .coming-soon,
 .empty-high-scores {
-  color: lightgray;
+  color: white;
+  text-shadow: 0 0 4px black;
   font-size: 42px;
   margin-top: 20px;
 }
 
-.coming-soon {
-  background-color: rgba(0,0,0,0.3);
-  padding: 10px;
-  border-radius: 4px;
-}
-
 .high-scores-loading {
   align-self: center;
-  margin-top: 40px;
-  height: 49px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 102px;
+  color: white;
+  text-shadow: 0 0 4px black;
 }
 
 @keyframes loading {
@@ -986,14 +993,16 @@ audio {
 }
 
 .source-anime {
-  color: white;
   text-shadow: 0 0 4px black;
   font-size: 14px;
-  font-weight: bold;
+  font-weight: normal;
   margin-top: 10px;
+  color: lightblue;
 }
 
 .source-anime-name {
-  font-weight: normal;
-  margin-left: 8px;
+  color: white;
+  font-size: 16px;
+  font-weight: bold;
+  margin-left: 4px;
 }
