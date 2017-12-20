@@ -40011,7 +40011,8 @@ var Level = exports.Level = function (_React$Component) {
       }
       return React.createElement(
         'div',
-        { className: className,
+        {
+          className: className,
           onMouseEnter: this.props.onMouseEnter,
           onMouseLeave: this.props.onMouseLeave,
           onClick: this.props.selectLevel },

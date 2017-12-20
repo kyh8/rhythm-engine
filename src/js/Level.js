@@ -40,10 +40,11 @@ export class Level extends React.Component {
       className += ' selected';
     }
     return (
-      <div className={className}
-      onMouseEnter={this.props.onMouseEnter}
-      onMouseLeave={this.props.onMouseLeave}
-      onClick={this.props.selectLevel}>
+      <div
+        className={className}
+        onMouseEnter={this.props.onMouseEnter}
+        onMouseLeave={this.props.onMouseLeave}
+        onClick={this.props.selectLevel}>
         <div className='level-album-artwork'>
           <img src={this.props.level.albumArtwork}/>
         </div>
