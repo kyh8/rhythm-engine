@@ -138,7 +138,7 @@ export class LevelSelector extends React.Component {
                     {songArtist}
                   </div>
                   <div className={'source-anime'}>
-                    <span>{'Anime:'}</span>
+                    <span className='source-anime-label'>{'Anime:'}</span>
                     <span className='source-anime-name'>{sourceAnime}</span>
                   </div>
                 </div>

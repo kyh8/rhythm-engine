@@ -40235,7 +40235,7 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
                     { className: 'source-anime' },
                     React.createElement(
                       'span',
-                      null,
+                      { className: 'source-anime-label' },
                       'Anime:'
                     ),
                     React.createElement(
