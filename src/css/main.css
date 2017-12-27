@@ -441,8 +441,8 @@ audio {
 .level-selector-container {
   display: flex;
   flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
+  justify-content: center;
+  align-items: center;
   width: 100%;
   height: 100%;
   background: no-repeat center center fixed;
@@ -451,78 +451,12 @@ audio {
 }
 
 .level-selector {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: flex-start;
-  width: 420px;
-  overflow: auto;
-  overflow-x: hidden;
-}
-
-.level-selector-panels {
   height: 100%;
   width: 100%;
   display: flex;
-  justify-content: flex-start;
-  align-items: flex-start;
-}
-
-.level:first-child {
-  margin-top: 0;
-}
-
-.level {
-  display: flex;
-  justify-content: flex-start;
+  justify-content: center;
   align-items: center;
-  background-color: rgba(0, 0, 0, 0.8);
-  width: 420px;
-  height: 100px;
-  cursor: pointer;
-}
-
-.level,
-.level-song-name,
-.level-song-artist,
-.level-album-artwork,
-.level-album-artwork img {
-  transition: 0.4s all ease;
-}
-
-.level.hovered {
-  width: 420px;
-  height: 150px;
-  background-color: white;
-}
-
-.level.selected {
-  background-color: rgba(77,162,255,0.8);
-}
-
-.level.hovered .level-album-artwork {
-  width: 150px;
-  height: 150px;
-}
-
-.level.hovered .level-song-name {
-  color: black;
-  font-size: 36px;
-}
-
-.level.hovered .level-song-artist {
-  font-size: 20px;
-}
-
-.level-album-artwork {
-  width: 100px;
-  height: 100px;
-  border-right: 1px solid white;
-}
-
-.level-album-artwork img {
-  width: 100%;
-  height: 100%;
+  flex-direction: column;
 }
 
 .level-info {
@@ -531,24 +465,6 @@ audio {
   justify-content: center;
   align-items: flex-start;
   margin-left: 12px;
-}
-
-.level-song-name {
-  color: white;
-  font-size: 28px;
-}
-
-.level-song-artist {
-  font-size: 14px;
-  color: gray;
-}
-
-.level.selected .level-song-artist {
-  color: white;
-}
-
-.level.selected .level-song-name {
-  color: white;
 }
 
 .level-selector-info-panel,
@@ -561,7 +477,6 @@ audio {
   min-width: 480px;
 }
 
-
 .empty-level-selector-info-panel {
   flex-direction: column;
 }
@@ -572,18 +487,18 @@ audio {
   text-shadow: 0 0 4px black;
 }
 
-.selected-level-album-artwork,
+/*.selected-level-album-artwork,
 .selected-level-album-artwork img {
   width: 400px;
   height: 400px;
-}
+}*/
 
-.selected-level-album-artwork img {
+.level-album-artwork img {
   box-shadow: 0 0 2px black;
   border-radius: 4px;
 }
 
-.selected-level-album-artwork {
+.level-album-artwork {
   padding: 10px;
   background-color: white;
   border-radius: 4px;
@@ -633,6 +548,8 @@ audio {
   );
   border-bottom-left-radius: 4px;
   border-bottom-right-radius: 4px;
+  opacity: 0;
+  transition: 0.5s all ease;
   z-index: 2;
 }
 
@@ -888,7 +805,6 @@ audio {
   color: white;
   text-shadow: 0 0 4px black;
   font-size: 42px;
-  margin-top: 20px;
 }
 
 .high-scores-loading {
@@ -1027,4 +943,104 @@ audio {
   border-top-left-radius: 0;
   border-bottom-left-radius: 0;
   background-color: rgba(0,0,0,0.9);
+}
+
+.level-selector-carousel {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 600px;
+}
+
+.level-info-footer {
+  margin-top: 10px;
+  height: 150px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.level-album-artwork img {
+  width: 100%;
+  height: 100%;
+}
+
+.level-album-artwork,
+.empty-carousel-level {
+  width: 200px;
+  height: 200px;
+  position: relative;
+  opacity: 1;
+  transition: 0.4s all ease, 0s z-index ease;
+}
+
+.empty-carousel-level {
+  padding: 10px;
+}
+
+.before-1,
+.after-1 {
+  width: 300px;
+  height: 300px;
+  z-index: 3;
+}
+
+.before-2,
+.after-2 {
+  opacity: 0.6;
+  width: 200px;
+  height: 200px;
+  z-index: 2;
+}
+
+.before-1,
+.before-2 {
+  margin-right: -100px;
+}
+
+.after-1,
+.after-2 {
+  margin-left: -100px;
+}
+
+.hidden {
+  width: 0;
+  height: 0;
+  opacity: 0;
+  padding: 0;
+  z-index: 1;
+}
+
+.selected-carousel-index .level-album-artwork {
+  width: 400px;
+  height: 400px;
+  z-index: 4;
+}
+
+.selected-carousel-index .album-artwork-info-overlay {
+  opacity: 1;
+}
+
+.carousel-item-marker {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  margin-left: 10px;
+  transition: 0.5s all ease;
+  background-color: white;
+}
+
+.carousel-item-marker:first-child {
+  margin-left: 0;
+}
+
+.selected.carousel-item-marker {
+  width: 20px;
+  height: 20px;
+}
+
+.level-selector-carousel-tracker {
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

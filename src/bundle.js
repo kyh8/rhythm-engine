@@ -39967,73 +39967,119 @@ var Level = exports.Level = function (_React$Component) {
   function Level(props) {
     _classCallCheck(this, Level);
 
-    var _this = _possibleConstructorReturn(this, (Level.__proto__ || Object.getPrototypeOf(Level)).call(this, props));
-
-    _this.state = {
-      queuedToPlay: false
-    };
-    return _this;
+    return _possibleConstructorReturn(this, (Level.__proto__ || Object.getPrototypeOf(Level)).call(this, props));
   }
 
   _createClass(Level, [{
     key: 'componentWillUpdate',
     value: function componentWillUpdate(nextProps, nextState) {
-      var _this2 = this;
-
-      var song = this.props.audioFile;
-      if (nextProps.isSelected && !this.props.isSelected) {
-        this.setState({
-          queuedToPlay: true
-        });
-        setTimeout(function () {
-          if (!_this2.state.queuedToPlay) {
-            return;
-          }
+      var song = this.props.level.audioFile;
+      if (!nextProps.isScrolling && this.props.isScrolling) {
+        if (this.props.isSelected) {
           song.currentTime = 0;
           song.play();
-        }, THROTTLE_TIMER);
-      } else if (!nextProps.isSelected && this.props.isSelected) {
-        this.setState({
-          queuedToPlay: false
-        });
+        }
+      }
+      if (nextProps.isScrolling && !this.props.isScrolling) {
         song.pause();
       }
     }
   }, {
     key: 'render',
     value: function render() {
-      var className = 'level';
-      if (this.props.isHovered) {
-        className += ' hovered';
+      var className = 'level-album-artwork ' + this.props.relativePrefix;
+      if (this.props.isHidden) {
+        className += ' hidden';
       }
-      if (this.props.isSelected) {
-        className += ' selected';
-      }
-      return React.createElement(
+      var songDifficulty = this.props.level.difficulty;
+      var albumArtwork = this.props.level.albumArtwork;
+      var songName = this.props.level.songName;
+      var songArtist = this.props.level.songArtist;
+      var sourceAnime = this.props.level.sourceAnime;
+      var isAvailable = this.props.level.isAvailable;
+
+      var footer = isAvailable ? React.createElement(
         'div',
-        {
-          className: className,
-          onMouseEnter: this.props.onMouseEnter,
-          onMouseLeave: this.props.onMouseLeave,
-          onClick: this.props.selectLevel },
+        null,
         React.createElement(
           'div',
-          { className: 'level-album-artwork' },
-          React.createElement('img', { src: this.props.level.albumArtwork })
+          { className: 'selected-level-metadata' },
+          React.createElement(
+            'div',
+            { className: 'difficulty-tag ' + songDifficulty.toLowerCase() },
+            songDifficulty.toUpperCase()
+          )
         ),
         React.createElement(
           'div',
-          { className: 'level-info' },
+          { className: 'selected-level-high-scores' },
+          this.props.loadingHighScores ? React.createElement(
+            'div',
+            { className: 'high-scores-loading' },
+            React.createElement('i', { className: 'fa fa-refresh fa-2x fa-fw loading' })
+          ) : this.props.highScores
+        )
+      ) : React.createElement(
+        'div',
+        { className: 'coming-soon' },
+        'COMING SOON'
+      );
+
+      return React.createElement(
+        'div',
+        { className: this.props.isSelected ? 'selected-carousel-index level-carousel-item' : 'level-carousel-item' },
+        React.createElement(
+          'div',
+          { className: className },
+          React.createElement('img', { src: this.props.level.albumArtwork }),
+          isAvailable && this.props.isSelected ? React.createElement(
+            'div',
+            {
+              className: 'album-artwork-overlay',
+              onClick: this.props.playLevel.bind(this, this.props.levelIndex) },
+            React.createElement(
+              'div',
+              { className: 'selected-level-play-button' },
+              React.createElement('i', { className: 'fa fa-play-circle', 'aria-hidden': 'true' })
+            )
+          ) : null,
           React.createElement(
             'div',
-            { className: 'level-song-name' },
-            this.props.level.songName
-          ),
-          React.createElement(
-            'div',
-            { className: 'level-song-artist' },
-            this.props.level.songArtist.toUpperCase()
+            { className: 'album-artwork-info-overlay' },
+            React.createElement(
+              'div',
+              { className: 'selected-level-song-info unselectable' },
+              React.createElement(
+                'div',
+                { className: 'selected-level-song-name' },
+                songName
+              ),
+              React.createElement(
+                'div',
+                { className: 'selected-level-song-artist' },
+                songArtist
+              ),
+              React.createElement(
+                'div',
+                { className: 'source-anime' },
+                React.createElement(
+                  'span',
+                  { className: 'source-anime-label' },
+                  'Anime'
+                ),
+                React.createElement(
+                  'span',
+                  { className: 'source-anime-name' },
+                  sourceAnime
+                )
+              )
+            )
           )
+        ),
+        React.createElement(
+          'div',
+          { className: 'level-info-footer' },
+          this.props.isScrolling || !this.props.isSelected ? null : footer
         )
       );
     }
@@ -40062,6 +40108,12 @@ function _inherits(subClass, superClass) { if (typeof superClass !== "function" 
 var React = require('react');
 var Level = require('./Level');
 
+var KEYS = {
+  LEFT: 37,
+  RIGHT: 39
+};
+var THROTTLE_TIMER = 300;
+
 var LevelSelector = exports.LevelSelector = function (_React$Component) {
   _inherits(LevelSelector, _React$Component);
 
@@ -40071,57 +40123,102 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
     var _this = _possibleConstructorReturn(this, (LevelSelector.__proto__ || Object.getPrototypeOf(LevelSelector)).call(this, props));
 
     _this.state = {
-      hoveredLevel: -1,
-      selectedLevel: -1,
-      loadingHighScores: false
+      selectedLevel: 0,
+      loadingHighScores: false,
+      scrolling: false
     };
     return _this;
   }
 
   _createClass(LevelSelector, [{
-    key: 'mouseEnterLevel',
-    value: function mouseEnterLevel(index) {
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      var _this2 = this;
+
+      this.selectLevel(this.state.selectedLevel);
+      document.onkeydown = function (e) {
+        var key = e.keyCode ? e.keyCode : e.which;
+        if (key === KEYS.LEFT || key === KEYS.RIGHT) {
+          _this2.setState({
+            scrolling: true
+          });
+          if (key === KEYS.LEFT) {
+            _this2.scrollLeft();
+          } else if (key === KEYS.RIGHT) {
+            _this2.scrollRight();
+          }
+        }
+      };
+
+      document.onkeyup = function (e) {
+        var key = e.keyCode ? e.keyCode : e.which;
+        if (key === KEYS.LEFT || key === KEYS.RIGHT) {
+          setTimeout(function () {
+            _this2.setState({
+              scrolling: false
+            });
+          }, THROTTLE_TIMER);
+        }
+      };
+    }
+  }, {
+    key: 'scrollLeft',
+    value: function scrollLeft() {
+      var newLevel = this.state.selectedLevel - 1;
       this.setState({
-        hoveredLevel: index
+        selectedLevel: newLevel >= 0 ? newLevel : 0
       });
     }
   }, {
-    key: 'mouseExitLevel',
-    value: function mouseExitLevel() {
+    key: 'scrollRight',
+    value: function scrollRight() {
+      var newLevel = this.state.selectedLevel + 1;
       this.setState({
-        hoveredLevel: -1
+        selectedLevel: newLevel <= this.props.songLibrary.length - 1 ? newLevel : this.props.songLibrary.length - 1
       });
     }
   }, {
     key: 'selectLevel',
     value: function selectLevel(index) {
-      var _this2 = this;
+      var _this3 = this;
 
       this.setState({
         selectedLevel: index,
         loadingHighScores: true
       }, function () {
-        _this2.renderHighScores();
+        _this3.renderHighScores();
       });
     }
   }, {
-    key: 'renderLevels',
-    value: function renderLevels() {
-      var _this3 = this;
-
+    key: 'renderLevelCarousel',
+    value: function renderLevelCarousel() {
       var levels = [];
-      this.props.songLibrary.forEach(function (song, index) {
-        levels.push(React.createElement(Level, {
-          key: 'level-' + index,
-          level: song,
-          levelIndex: index,
-          onMouseEnter: _this3.mouseEnterLevel.bind(_this3, index),
-          onMouseLeave: _this3.mouseExitLevel.bind(_this3),
-          selectLevel: _this3.selectLevel.bind(_this3, index),
-          isHovered: _this3.state.hoveredLevel == index,
-          isSelected: _this3.state.selectedLevel == index,
-          audioFile: _this3.props.songLibrary[index].audioFile }));
-      });
+      var selectedIndex = this.state.selectedLevel;
+      var startingIndex = this.state.selectedLevel - 2 >= 0 ? this.state.selectedLevel - 2 : 0;
+      var endingIndex = this.state.selectedLevel + 2 <= this.props.songLibrary.length - 1 ? this.state.selectedLevel + 2 : this.props.songLibrary.length - 1;
+
+      for (var index = -2; index <= this.props.songLibrary.length + 1; index++) {
+        var relativePrefix = index < selectedIndex ? 'before' : 'after';
+        if (index < 0 || index > this.props.songLibrary.length - 1) {
+          var isHidden = Math.abs(index - selectedIndex) > 2 ? ' hidden' : '';
+          levels.push(React.createElement('div', {
+            className: 'empty-carousel-level ' + relativePrefix + '-' + Math.abs(index - selectedIndex) + isHidden,
+            key: 'level-' + index }));
+        } else {
+          var song = this.props.songLibrary[index];
+          levels.push(React.createElement(Level, {
+            key: 'level-' + index,
+            level: song,
+            levelIndex: index,
+            relativePrefix: relativePrefix + '-' + Math.abs(index - selectedIndex),
+            isHidden: index < startingIndex || index > endingIndex,
+            isSelected: index === this.state.selectedLevel,
+            isScrolling: this.state.scrolling,
+            playLevel: this.props.playLevel,
+            loadingHighScores: this.state.loadingHighScores,
+            highScores: this.state.highScores }));
+        }
+      }
       return levels;
     }
   }, {
@@ -40171,120 +40268,32 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
       });
     }
   }, {
-    key: 'renderSelectedLevel',
-    value: function renderSelectedLevel() {
-      if (this.state.selectedLevel == -1) {
-        return React.createElement(
-          'div',
-          { className: 'empty-level-selector-info-panel' },
-          React.createElement(
-            'div',
-            { className: 'unselected-level-text' },
-            'Select A Level'
-          )
-        );
+    key: 'renderTracker',
+    value: function renderTracker() {
+      var markers = [];
+      for (var i = 0; i < this.props.songLibrary.length; i++) {
+        markers.push(React.createElement('div', {
+          className: i === this.state.selectedLevel ? 'carousel-item-marker selected' : 'carousel-item-marker',
+          key: 'carousel-marker-' + i }));
       }
-      var songDifficulty = this.props.songLibrary[this.state.selectedLevel].difficulty;
-      var albumArtwork = this.props.songLibrary[this.state.selectedLevel].albumArtwork;
-      var songName = this.props.songLibrary[this.state.selectedLevel].songName;
-      var songArtist = this.props.songLibrary[this.state.selectedLevel].songArtist;
-      var sourceAnime = this.props.songLibrary[this.state.selectedLevel].sourceAnime;
-      var isAvailable = this.props.songLibrary[this.state.selectedLevel].isAvailable;
-      return React.createElement(
-        'div',
-        { className: 'level-selector-info-panel' },
-        React.createElement(
-          'div',
-          { className: 'selected-level-info-container' },
-          React.createElement(
-            'div',
-            { className: 'selected-level-info' },
-            React.createElement(
-              'div',
-              { className: 'selected-level-album-artwork' },
-              React.createElement('img', { src: albumArtwork }),
-              isAvailable ? React.createElement(
-                'div',
-                {
-                  className: 'album-artwork-overlay',
-                  onClick: this.props.selectLevel.bind(this, this.state.selectedLevel) },
-                React.createElement(
-                  'div',
-                  { className: 'selected-level-play-button' },
-                  React.createElement('i', { className: 'fa fa-play-circle', 'aria-hidden': 'true' })
-                )
-              ) : null,
-              React.createElement(
-                'div',
-                { className: 'album-artwork-info-overlay' },
-                React.createElement(
-                  'div',
-                  { className: 'selected-level-song-info unselectable' },
-                  React.createElement(
-                    'div',
-                    { className: 'selected-level-song-name' },
-                    songName
-                  ),
-                  React.createElement(
-                    'div',
-                    { className: 'selected-level-song-artist' },
-                    songArtist
-                  ),
-                  React.createElement(
-                    'div',
-                    { className: 'source-anime' },
-                    React.createElement(
-                      'span',
-                      { className: 'source-anime-label' },
-                      'Anime:'
-                    ),
-                    React.createElement(
-                      'span',
-                      { className: 'source-anime-name' },
-                      sourceAnime
-                    )
-                  )
-                )
-              )
-            ),
-            React.createElement(
-              'div',
-              { className: 'selected-level-metadata' },
-              React.createElement(
-                'div',
-                { className: 'difficulty-tag ' + songDifficulty.toLowerCase() },
-                songDifficulty.toUpperCase()
-              )
-            ),
-            isAvailable ? React.createElement(
-              'div',
-              { className: 'selected-level-high-scores' },
-              this.state.loadingHighScores ? React.createElement(
-                'div',
-                { className: 'high-scores-loading' },
-                React.createElement('i', { className: 'fa fa-refresh fa-2x fa-fw loading' })
-              ) : this.state.highScores
-            ) : React.createElement(
-              'div',
-              { className: 'coming-soon' },
-              'COMING SOON'
-            )
-          )
-        )
-      );
+      return markers;
     }
   }, {
     key: 'render',
     value: function render() {
       return React.createElement(
         'div',
-        { className: 'level-selector-panels' },
+        { className: 'level-selector' },
         React.createElement(
           'div',
-          { className: 'level-selector' },
-          this.renderLevels()
+          { className: 'level-selector-carousel-tracker' },
+          this.renderTracker()
         ),
-        this.renderSelectedLevel()
+        React.createElement(
+          'div',
+          { className: 'level-selector-carousel' },
+          this.renderLevelCarousel()
+        )
       );
     }
   }]);
@@ -41464,7 +41473,7 @@ var App = exports.App = function (_React$Component) {
           React.createElement(LevelSelector, {
             songLibrary: SONGS,
             getScores: this.getScoresFromDb.bind(this),
-            selectLevel: this._selectLevel.bind(this) })
+            playLevel: this._selectLevel.bind(this) })
         )
       );
     }

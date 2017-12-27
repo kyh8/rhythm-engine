@@ -1,25 +1,64 @@
 const React = require('react');
 const Level = require('./Level');
 
+const KEYS = {
+  LEFT: 37,
+  RIGHT: 39,
+};
+const THROTTLE_TIMER = 300;
+
 export class LevelSelector extends React.Component {
   constructor(props) {
     super(props);
     this.state = {
-      hoveredLevel: -1,
-      selectedLevel: -1,
+      selectedLevel: 0,
       loadingHighScores: false,
+      scrolling: false,
     }
   }
 
-  mouseEnterLevel(index) {
+  componentDidMount() {
+    this.selectLevel(this.state.selectedLevel);
+    document.onkeydown = (e) => {
+      let key = e.keyCode ? e.keyCode : e.which;
+      if (key === KEYS.LEFT || key === KEYS.RIGHT) {
+        this.setState({
+          scrolling: true,
+        });
+        if (key === KEYS.LEFT) {
+          this.scrollLeft();
+        } else if (key === KEYS.RIGHT) {
+          this.scrollRight();
+        }
+      }
+    }
+
+    document.onkeyup = (e) => {
+      let key = e.keyCode ? e.keyCode : e.which;
+      if (key === KEYS.LEFT || key === KEYS.RIGHT) {
+        setTimeout(() => {
+          this.setState({
+            scrolling: false,
+          });
+        }, THROTTLE_TIMER);
+      }
+    }
+  }
+
+  scrollLeft() {
+    let newLevel = this.state.selectedLevel - 1;
     this.setState({
-      hoveredLevel: index,
+      selectedLevel: newLevel >= 0 ? newLevel : 0,
     });
   }
 
-  mouseExitLevel() {
+  scrollRight() {
+    let newLevel = this.state.selectedLevel + 1;
     this.setState({
-      hoveredLevel: -1,
+      selectedLevel:
+        newLevel <= this.props.songLibrary.length - 1
+        ? newLevel
+        : this.props.songLibrary.length - 1,
     });
   }
 
@@ -32,22 +71,49 @@ export class LevelSelector extends React.Component {
     });
   }
 
-  renderLevels() {
+  renderLevelCarousel() {
     let levels = [];
-    this.props.songLibrary.forEach((song, index) => {
-      levels.push(
-        <Level
-          key={'level-' + index}
-          level={song}
-          levelIndex={index}
-          onMouseEnter={this.mouseEnterLevel.bind(this, index)}
-          onMouseLeave={this.mouseExitLevel.bind(this)}
-          selectLevel={this.selectLevel.bind(this, index)}
-          isHovered={this.state.hoveredLevel == index}
-          isSelected={this.state.selectedLevel == index}
-          audioFile={this.props.songLibrary[index].audioFile}/>
-      );
-    });
+    const selectedIndex = this.state.selectedLevel;
+    const startingIndex =
+      this.state.selectedLevel - 2 >= 0
+      ? this.state.selectedLevel - 2
+      : 0;
+    const endingIndex =
+      this.state.selectedLevel + 2 <= this.props.songLibrary.length - 1
+      ? this.state.selectedLevel + 2
+      : this.props.songLibrary.length - 1;
+
+    for (let index = -2; index <= this.props.songLibrary.length + 1; index++) {
+      let relativePrefix = index < selectedIndex ? 'before' : 'after';
+      if (index < 0 || index > this.props.songLibrary.length - 1) {
+        let isHidden = Math.abs(index - selectedIndex) > 2 ? ' hidden' : '';
+        levels.push(
+          <div
+            className={
+              'empty-carousel-level '
+              + relativePrefix + '-' + Math.abs(index - selectedIndex)
+              + isHidden
+            }
+            key={'level-' + index}/>
+        );
+      } else {
+        let song = this.props.songLibrary[index];
+        levels.push(
+          <Level
+            key={'level-' + index}
+            level={song}
+            levelIndex={index}
+            relativePrefix={relativePrefix + '-' + Math.abs(index - selectedIndex)}
+            isHidden={index < startingIndex || index > endingIndex}
+            isSelected={index === this.state.selectedLevel}
+            isScrolling={this.state.scrolling}
+            playLevel={this.props.playLevel}
+            loadingHighScores={this.state.loadingHighScores}
+            highScores={this.state.highScores}>
+          </Level>
+        );
+      }
+    }
     return levels;
   }
 
@@ -94,92 +160,33 @@ export class LevelSelector extends React.Component {
     });
   }
 
-  renderSelectedLevel() {
-    if (this.state.selectedLevel == -1) {
-      return (
-        <div className='empty-level-selector-info-panel'>
-          <div className='unselected-level-text'>
-            Select A Level
-          </div>
+  renderTracker() {
+    let markers = [];
+    for (let i = 0; i < this.props.songLibrary.length; i++) {
+      markers.push(
+        <div
+          className={
+            i === this.state.selectedLevel
+            ? 'carousel-item-marker selected'
+            : 'carousel-item-marker'
+          }
+          key={'carousel-marker-' + i}>
+
         </div>
       );
     }
-    let songDifficulty = this.props.songLibrary[this.state.selectedLevel].difficulty;
-    let albumArtwork = this.props.songLibrary[this.state.selectedLevel].albumArtwork;
-    let songName = this.props.songLibrary[this.state.selectedLevel].songName;
-    let songArtist = this.props.songLibrary[this.state.selectedLevel].songArtist;
-    let sourceAnime = this.props.songLibrary[this.state.selectedLevel].sourceAnime;
-    let isAvailable = this.props.songLibrary[this.state.selectedLevel].isAvailable;
-    return (
-      <div className='level-selector-info-panel'>
-        <div className='selected-level-info-container'>
-          <div className='selected-level-info'>
-            <div className='selected-level-album-artwork'>
-              <img src={albumArtwork}/>
-                {
-                  isAvailable
-                  ? (
-                    <div
-                      className='album-artwork-overlay'
-                      onClick={this.props.selectLevel.bind(this, this.state.selectedLevel)}>
-                      <div className='selected-level-play-button'>
-                        <i className='fa fa-play-circle' aria-hidden='true'/>
-                      </div>
-                    </div>
-
-                  ): null
-                }
-              <div className='album-artwork-info-overlay'>
-                <div className='selected-level-song-info unselectable'>
-                  <div className='selected-level-song-name'>
-                    {songName}
-                  </div>
-                  <div className='selected-level-song-artist'>
-                    {songArtist}
-                  </div>
-                  <div className={'source-anime'}>
-                    <span className='source-anime-label'>{'Anime:'}</span>
-                    <span className='source-anime-name'>{sourceAnime}</span>
-                  </div>
-                </div>
-              </div>
-            </div>
-            <div className='selected-level-metadata'>
-              <div className={'difficulty-tag ' + songDifficulty.toLowerCase()}>
-                {songDifficulty.toUpperCase()}
-              </div>
-            </div>
-            {
-              isAvailable
-              ? (
-                <div className='selected-level-high-scores'>
-                  {
-                    this.state.loadingHighScores
-                    ? (
-                        <div className='high-scores-loading'>
-                          <i className='fa fa-refresh fa-2x fa-fw loading'/>
-                        </div>
-                    ): this.state.highScores
-                  }
-                </div>
-              )
-              : (
-                <div className='coming-soon'>COMING SOON</div>
-              )
-            }
-          </div>
-        </div>
-      </div>
-    );
+    return markers;
   }
 
   render() {
     return (
-      <div className='level-selector-panels'>
-        <div className='level-selector'>
-          {this.renderLevels()}
+      <div className='level-selector'>
+        <div className='level-selector-carousel-tracker'>
+          {this.renderTracker()}
         </div>
-        {this.renderSelectedLevel()}
+        <div className='level-selector-carousel'>
+          {this.renderLevelCarousel()}
+        </div>
       </div>
     );
   }
