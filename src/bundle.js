@@ -40073,7 +40073,7 @@ var Level = exports.Level = function (_React$Component) {
                 React.createElement(
                   'span',
                   { className: 'source-anime-label' },
-                  'Anime'
+                  'ANIME'
                 ),
                 React.createElement(
                   'span',
@@ -40257,6 +40257,15 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
           var index = 0;
           var highScoreElements = [];
           highScores.forEach(function (user) {
+            var place = index + 1;
+            var placeSuffix = void 0;
+            if (place == 1) {
+              placeSuffix = 'ST';
+            } else if (place == 2) {
+              placeSuffix = 'ND';
+            } else if (place == 3) {
+              placeSuffix = 'RD';
+            }
             highScoreElements.push(React.createElement(
               'div',
               {
@@ -40264,8 +40273,8 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
                 key: 'high-score-' + user.data().username + '-' + index },
               React.createElement(
                 'div',
-                { className: 'high-score-owner' },
-                user.data().username
+                { className: 'high-score-place' },
+                place + placeSuffix
               ),
               React.createElement(
                 'div',
@@ -40274,8 +40283,8 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
               ),
               React.createElement(
                 'div',
-                { className: 'high-score-place' },
-                index + 1
+                { className: 'high-score-owner' },
+                user.data().username
               )
             ));
             index++;

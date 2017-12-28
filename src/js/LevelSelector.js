@@ -141,6 +141,15 @@ export class LevelSelector extends React.Component {
         let index = 0;
         let highScoreElements = [];
         highScores.forEach((user) => {
+          let place = index + 1;
+          let placeSuffix;
+          if (place == 1) {
+            placeSuffix = 'ST';
+          } else if (place == 2) {
+            placeSuffix = 'ND';
+          } else if (place == 3) {
+            placeSuffix = 'RD';
+          }
           highScoreElements.push(
             <div
               className={
@@ -149,14 +158,14 @@ export class LevelSelector extends React.Component {
                 : 'high-score'
               }
               key={'high-score-' + user.data().username + '-' + index}>
-              <div className='high-score-owner'>
-                {user.data().username}
+              <div className='high-score-place'>
+                {place + placeSuffix}
               </div>
               <div className='high-score-value'>
                 {user.data().score}
               </div>
-              <div className='high-score-place'>
-                {index + 1}
+              <div className='high-score-owner'>
+                {user.data().username}
               </div>
             </div>
           );

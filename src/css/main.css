@@ -746,11 +746,11 @@ audio {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 .high-score {
-  color: black;
+  color: white;
   display: flex;
   flex-direction: column;
   justify-content: center;
@@ -758,39 +758,31 @@ audio {
   transition: 0.2s all ease;
   width: 100px;
   height: 100px;
-  border-radius: 50%;
-  background-color: white;
-  box-shadow: 0 0 4px black;
-  border: 1px solid lightgray;
-  margin-left: 20px;
+  margin-left: 40px;
   position: relative;
 }
 
 .high-score-owner {
-  font-size: 14px;
+  font-size: 18px;
+  color: lightgray;
+  text-shadow: 0 0 2px black;
 }
 
 .high-score-value {
-  font-size: 28px;
+  font-size: 42px;
+  font-weight: bold;
+  text-shadow: 0 0 2px black;
+}
+
+.high-score-place {
+  font-size: 20px;
+  color: orange;
+  text-shadow: 0 0 1px black;
+  font-weight: bold;
 }
 
 .high-score:first-child {
   margin-left: 0;
-}
-
-.high-score-place {
-  position: absolute;
-  bottom: 0px;
-  right: 0px;
-  width: 24px;
-  height: 24px;
-  color: white;
-  border-radius: 50%;
-  background-color: rgb(0,122,255);
-  box-shadow: 0 0 2px black;
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .selected-level-playable {

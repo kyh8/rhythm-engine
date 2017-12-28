@@ -91,7 +91,7 @@ export class Level extends React.Component {
                 {songArtist}
               </div>
               <div className={'source-anime'}>
-                <span className='source-anime-label'>{'Anime'}</span>
+                <span className='source-anime-label'>{'ANIME'}</span>
                 <span className='source-anime-name'>{sourceAnime}</span>
               </div>
             </div>
