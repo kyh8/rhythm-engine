@@ -7,6 +7,13 @@ export class Level extends React.Component {
     super(props);
   }
 
+  componentDidMount() {
+    if (this.props.isSelected) {
+      let song = this.props.level.audioFile;
+      song.play();
+    }
+  }
+
   componentWillUpdate(nextProps, nextState) {
     let song = this.props.level.audioFile;
     if (!nextProps.isScrolling && this.props.isScrolling) {

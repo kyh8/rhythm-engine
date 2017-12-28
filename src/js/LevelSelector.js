@@ -69,12 +69,20 @@ export class LevelSelector extends React.Component {
     });
   }
 
-  selectLevel(index) {
+  selectLevel(index, fromTracker) {
     this.setState({
       selectedLevel: index,
+      scrolling: fromTracker === true,
       loadingHighScores: true,
     }, () => {
       this.renderHighScores();
+      if (fromTracker === true) {
+        setTimeout(() => {
+          this.setState({
+            scrolling: false,
+          });
+        }, THROTTLE_TIMER);
+      }
     });
   }
 
@@ -192,7 +200,7 @@ export class LevelSelector extends React.Component {
           key={'carousel-marker-' + i}
           onMouseEnter={this.mouseEnterTracker.bind(this, i)}
           onMouseLeave={this.mouseLeaveTracker.bind(this)}
-          onClick={this.selectLevel.bind(this, i)}>
+          onClick={this.selectLevel.bind(this, i, true)}>
           <div className={
             this.state.itemMarkerHovered === i
             ? 'carousel-item-marker-info shown'

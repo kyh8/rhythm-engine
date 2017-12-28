@@ -39971,6 +39971,14 @@ var Level = exports.Level = function (_React$Component) {
   }
 
   _createClass(Level, [{
+    key: 'componentDidMount',
+    value: function componentDidMount() {
+      if (this.props.isSelected) {
+        var song = this.props.level.audioFile;
+        song.play();
+      }
+    }
+  }, {
     key: 'componentWillUpdate',
     value: function componentWillUpdate(nextProps, nextState) {
       var song = this.props.level.audioFile;
@@ -40186,14 +40194,22 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
     }
   }, {
     key: 'selectLevel',
-    value: function selectLevel(index) {
+    value: function selectLevel(index, fromTracker) {
       var _this3 = this;
 
       this.setState({
         selectedLevel: index,
+        scrolling: fromTracker === true,
         loadingHighScores: true
       }, function () {
         _this3.renderHighScores();
+        if (fromTracker === true) {
+          setTimeout(function () {
+            _this3.setState({
+              scrolling: false
+            });
+          }, THROTTLE_TIMER);
+        }
       });
     }
   }, {
@@ -40300,7 +40316,7 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
             key: 'carousel-marker-' + i,
             onMouseEnter: this.mouseEnterTracker.bind(this, i),
             onMouseLeave: this.mouseLeaveTracker.bind(this),
-            onClick: this.selectLevel.bind(this, i) },
+            onClick: this.selectLevel.bind(this, i, true) },
           React.createElement(
             'div',
             { className: this.state.itemMarkerHovered === i ? 'carousel-item-marker-info shown' : 'carousel-item-marker-info' },
