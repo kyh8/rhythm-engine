@@ -40321,11 +40321,8 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
         markers.push(React.createElement(
           'div',
           {
-            className: i === this.state.selectedLevel ? 'carousel-item-marker selected' : 'carousel-item-marker',
             key: 'carousel-marker-' + i,
-            onMouseEnter: this.mouseEnterTracker.bind(this, i),
-            onMouseLeave: this.mouseLeaveTracker.bind(this),
-            onClick: this.selectLevel.bind(this, i, true) },
+            className: 'carousel-item-marker-container' },
           React.createElement(
             'div',
             { className: this.state.itemMarkerHovered === i ? 'carousel-item-marker-info shown' : 'carousel-item-marker-info' },
@@ -40336,7 +40333,12 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
             ),
             React.createElement('img', { src: this.props.songLibrary[i].albumArtwork }),
             React.createElement('div', { className: 'arrow' })
-          )
+          ),
+          React.createElement('div', {
+            className: i === this.state.selectedLevel ? 'carousel-item-marker selected' : 'carousel-item-marker',
+            onMouseEnter: this.mouseEnterTracker.bind(this, i),
+            onMouseLeave: this.mouseLeaveTracker.bind(this),
+            onClick: this.selectLevel.bind(this, i, true) })
         ));
       }
       return markers;

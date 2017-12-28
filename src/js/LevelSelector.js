@@ -201,15 +201,8 @@ export class LevelSelector extends React.Component {
     for (let i = 0; i < this.props.songLibrary.length; i++) {
       markers.push(
         <div
-          className={
-            i === this.state.selectedLevel
-            ? 'carousel-item-marker selected'
-            : 'carousel-item-marker'
-          }
           key={'carousel-marker-' + i}
-          onMouseEnter={this.mouseEnterTracker.bind(this, i)}
-          onMouseLeave={this.mouseLeaveTracker.bind(this)}
-          onClick={this.selectLevel.bind(this, i, true)}>
+          className='carousel-item-marker-container'>
           <div className={
             this.state.itemMarkerHovered === i
             ? 'carousel-item-marker-info shown'
@@ -219,6 +212,15 @@ export class LevelSelector extends React.Component {
             <img src={this.props.songLibrary[i].albumArtwork}/>
             <div className='arrow'/>
           </div>
+          <div
+            className={
+              i === this.state.selectedLevel
+              ? 'carousel-item-marker selected'
+              : 'carousel-item-marker'
+            }
+            onMouseEnter={this.mouseEnterTracker.bind(this, i)}
+            onMouseLeave={this.mouseLeaveTracker.bind(this)}
+            onClick={this.selectLevel.bind(this, i, true)}/>
         </div>
       );
     }
