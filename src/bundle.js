@@ -40112,7 +40112,7 @@ var KEYS = {
   LEFT: 37,
   RIGHT: 39
 };
-var THROTTLE_TIMER = 300;
+var THROTTLE_TIMER = 500;
 
 var LevelSelector = exports.LevelSelector = function (_React$Component) {
   _inherits(LevelSelector, _React$Component);
@@ -40125,7 +40125,8 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
     _this.state = {
       selectedLevel: 0,
       loadingHighScores: false,
-      scrolling: false
+      scrolling: false,
+      itemMarkerHovered: -1
     };
     return _this;
   }
@@ -40137,6 +40138,9 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
 
       this.selectLevel(this.state.selectedLevel);
       document.onkeydown = function (e) {
+        if (!_this2.props.levelSelectorShown) {
+          return;
+        }
         var key = e.keyCode ? e.keyCode : e.which;
         if (key === KEYS.LEFT || key === KEYS.RIGHT) {
           _this2.setState({
@@ -40151,6 +40155,9 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
       };
 
       document.onkeyup = function (e) {
+        if (!_this2.props.levelSelectorShown) {
+          return;
+        }
         var key = e.keyCode ? e.keyCode : e.which;
         if (key === KEYS.LEFT || key === KEYS.RIGHT) {
           setTimeout(function () {
@@ -40268,19 +40275,67 @@ var LevelSelector = exports.LevelSelector = function (_React$Component) {
       });
     }
   }, {
+    key: 'mouseEnterTracker',
+    value: function mouseEnterTracker(index) {
+      this.setState({
+        itemMarkerHovered: index
+      });
+    }
+  }, {
+    key: 'mouseLeaveTracker',
+    value: function mouseLeaveTracker() {
+      this.setState({
+        itemMarkerHovered: -1
+      });
+    }
+  }, {
     key: 'renderTracker',
     value: function renderTracker() {
       var markers = [];
       for (var i = 0; i < this.props.songLibrary.length; i++) {
-        markers.push(React.createElement('div', {
-          className: i === this.state.selectedLevel ? 'carousel-item-marker selected' : 'carousel-item-marker',
-          key: 'carousel-marker-' + i }));
+        markers.push(React.createElement(
+          'div',
+          {
+            className: i === this.state.selectedLevel ? 'carousel-item-marker selected' : 'carousel-item-marker',
+            key: 'carousel-marker-' + i,
+            onMouseEnter: this.mouseEnterTracker.bind(this, i),
+            onMouseLeave: this.mouseLeaveTracker.bind(this),
+            onClick: this.selectLevel.bind(this, i) },
+          React.createElement(
+            'div',
+            { className: this.state.itemMarkerHovered === i ? 'carousel-item-marker-info shown' : 'carousel-item-marker-info' },
+            React.createElement(
+              'div',
+              null,
+              this.props.songLibrary[i].songName
+            ),
+            React.createElement('img', { src: this.props.songLibrary[i].albumArtwork }),
+            React.createElement('div', { className: 'arrow' })
+          )
+        ));
       }
       return markers;
     }
   }, {
     key: 'render',
     value: function render() {
+      var instructions = React.createElement(
+        'div',
+        { className: 'level-selector-carousel-instructions' },
+        '(Use',
+        React.createElement(
+          'span',
+          { className: 'keyboard-key' },
+          React.createElement('i', { className: 'fa fa-long-arrow-left', 'aria-hidden': 'true' })
+        ),
+        'and',
+        React.createElement(
+          'span',
+          { className: 'keyboard-key' },
+          React.createElement('i', { className: 'fa fa-long-arrow-right', 'aria-hidden': 'true' })
+        ),
+        'to navigate)'
+      );
       return React.createElement(
         'div',
         { className: 'level-selector' },
@@ -41473,7 +41528,8 @@ var App = exports.App = function (_React$Component) {
           React.createElement(LevelSelector, {
             songLibrary: SONGS,
             getScores: this.getScoresFromDb.bind(this),
-            playLevel: this._selectLevel.bind(this) })
+            playLevel: this._selectLevel.bind(this),
+            levelSelectorShown: !this.state.isLevelSelected })
         )
       );
     }

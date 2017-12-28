@@ -785,7 +785,8 @@ export class App extends React.Component {
               <LevelSelector
                 songLibrary={SONGS}
                 getScores={this.getScoresFromDb.bind(this)}
-                playLevel={this._selectLevel.bind(this)}/>
+                playLevel={this._selectLevel.bind(this)}
+                levelSelectorShown={!this.state.isLevelSelected}/>
             </div>
           )
         }

@@ -5,7 +5,7 @@ const KEYS = {
   LEFT: 37,
   RIGHT: 39,
 };
-const THROTTLE_TIMER = 300;
+const THROTTLE_TIMER = 500;
 
 export class LevelSelector extends React.Component {
   constructor(props) {
@@ -14,12 +14,16 @@ export class LevelSelector extends React.Component {
       selectedLevel: 0,
       loadingHighScores: false,
       scrolling: false,
+      itemMarkerHovered: -1,
     }
   }
 
   componentDidMount() {
     this.selectLevel(this.state.selectedLevel);
     document.onkeydown = (e) => {
+      if (!this.props.levelSelectorShown) {
+        return;
+      }
       let key = e.keyCode ? e.keyCode : e.which;
       if (key === KEYS.LEFT || key === KEYS.RIGHT) {
         this.setState({
@@ -34,6 +38,9 @@ export class LevelSelector extends React.Component {
     }
 
     document.onkeyup = (e) => {
+      if (!this.props.levelSelectorShown) {
+        return;
+      }
       let key = e.keyCode ? e.keyCode : e.which;
       if (key === KEYS.LEFT || key === KEYS.RIGHT) {
         setTimeout(() => {
@@ -160,6 +167,18 @@ export class LevelSelector extends React.Component {
     });
   }
 
+  mouseEnterTracker(index) {
+    this.setState({
+      itemMarkerHovered: index,
+    });
+  }
+
+  mouseLeaveTracker() {
+    this.setState({
+      itemMarkerHovered: -1,
+    });
+  }
+
   renderTracker() {
     let markers = [];
     for (let i = 0; i < this.props.songLibrary.length; i++) {
@@ -170,8 +189,19 @@ export class LevelSelector extends React.Component {
             ? 'carousel-item-marker selected'
             : 'carousel-item-marker'
           }
-          key={'carousel-marker-' + i}>
-
+          key={'carousel-marker-' + i}
+          onMouseEnter={this.mouseEnterTracker.bind(this, i)}
+          onMouseLeave={this.mouseLeaveTracker.bind(this)}
+          onClick={this.selectLevel.bind(this, i)}>
+          <div className={
+            this.state.itemMarkerHovered === i
+            ? 'carousel-item-marker-info shown'
+            : 'carousel-item-marker-info'
+          }>
+            <div>{this.props.songLibrary[i].songName}</div>
+            <img src={this.props.songLibrary[i].albumArtwork}/>
+            <div className='arrow'/>
+          </div>
         </div>
       );
     }
@@ -179,6 +209,19 @@ export class LevelSelector extends React.Component {
   }
 
   render() {
+    let instructions = (
+      <div className='level-selector-carousel-instructions'>
+        (Use
+        <span className='keyboard-key'>
+        <i className="fa fa-long-arrow-left" aria-hidden="true"/>
+        </span>
+        and
+        <span className='keyboard-key'>
+        <i className="fa fa-long-arrow-right" aria-hidden="true"/>
+        </span>
+        to navigate)
+      </div>
+    );
     return (
       <div className='level-selector'>
         <div className='level-selector-carousel-tracker'>
