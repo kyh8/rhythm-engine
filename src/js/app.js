@@ -20,16 +20,6 @@ const SCORE_VALUES = require('../scoreconstants.json');
 
 const SONGS = [
   {
-    songName: 'Gamers!',
-    songArtist: 'Hisako Kanemoto',
-    audioFile: new Audio('src/assets/gamers.mp3'),
-    sheetMusic: GAMERS,
-    albumArtwork: 'src/assets/gamers.png',
-    sourceAnime: 'Gamers!',
-    difficulty: 'Hard',
-    isAvailable: true,
-  },
-  {
     songName: 'Hikaru Nara',
     songArtist: 'Goose House',
     audioFile: new Audio('src/assets/your_lie_in_april_op.mp3'),
@@ -47,6 +37,16 @@ const SONGS = [
     albumArtwork: 'src/assets/naruto.png',
     sourceAnime: 'Naruto',
     difficulty: 'Medium',
+    isAvailable: true,
+  },
+  {
+    songName: 'Gamers!',
+    songArtist: 'Hisako Kanemoto',
+    audioFile: new Audio('src/assets/gamers.mp3'),
+    sheetMusic: GAMERS,
+    albumArtwork: 'src/assets/gamers.png',
+    sourceAnime: 'Gamers!',
+    difficulty: 'Hard',
     isAvailable: true,
   },
   {
